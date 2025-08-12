@@ -1,0 +1,28 @@
+node_modules/
+
+# Meteor local build cache
+.meteor/local
+
+# OS / Editor junk
+.DS_Store
+*.swp
+*.swo
+.idea/
+.vscode/*.log
+
+# Logs
+npm-debug.log*
+yarn-error.log*
+
+# Env files
+.env
+.env.*
+!.env.example
+
+# Coverage / test output
+coverage/
+
+# Build artifacts
+dist/
+build/
+

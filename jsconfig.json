@@ -1,0 +1,64 @@
+{
+  "compilerOptions": {
+    "checkJs": true,
+    "allowJs": true,
+    "jsx": "react",
+    "baseUrl": ".",
+    "paths": {
+      "/*": [
+        "./*"
+      ],
+      "meteor/mongo": [
+        "/Users/babybus/.meteor/packages/mongo/2.1.2/web.browser/local_collection_driver.js",
+        "/Users/babybus/.meteor/packages/mongo/2.1.2/web.browser/collection/collection.js",
+        "/Users/babybus/.meteor/packages/mongo/2.1.2/web.browser/asynchronous_cursor.js",
+        "/Users/babybus/.meteor/packages/mongo/2.1.2/web.browser/doc_fetcher.js",
+        "/Users/babybus/.meteor/packages/mongo/2.1.2/web.browser/mongo_common.js",
+        "/Users/babybus/.meteor/packages/mongo/2.1.2/web.browser/mongo_connection.js",
+        "/Users/babybus/.meteor/packages/mongo/2.1.2/web.browser/mongo_driver.js",
+        "/Users/babybus/.meteor/packages/mongo/2.1.2/web.browser/mongo_utils.js",
+        "/Users/babybus/.meteor/packages/mongo/2.1.2/web.browser/oplog_observe_driver.js",
+        "/Users/babybus/.meteor/packages/mongo/2.1.2/web.browser/collection/collection_utils.js",
+        "/Users/babybus/.meteor/packages/mongo/2.1.2/web.browser/collection/methods_async.js",
+        "/Users/babybus/.meteor/packages/mongo/2.1.2/web.browser/collection/methods_index.js",
+        "/Users/babybus/.meteor/packages/mongo/2.1.2/web.browser/collection/methods_replication.js",
+        "/Users/babybus/.meteor/packages/mongo/2.1.2/web.browser/collection/methods_sync.js",
+        "/Users/babybus/.meteor/packages/mongo/2.1.2/web.browser/collection/watch_change_stream.js"
+      ],
+      "meteor/reactive-var": [
+        "/Users/babybus/.meteor/packages/reactive-var/1.0.13/web.browser/reactive-var.js"
+      ],
+      "meteor/es5-shim": [
+        "/Users/babybus/.meteor/packages/es5-shim/4.8.1/web.browser/client.js",
+        "/Users/babybus/.meteor/packages/es5-shim/4.8.1/web.browser/console.js",
+        "/Users/babybus/.meteor/packages/es5-shim/4.8.1/web.browser/cordova.js",
+        "/Users/babybus/.meteor/packages/es5-shim/4.8.1/web.browser/export_globals.js",
+        "/Users/babybus/.meteor/packages/es5-shim/4.8.1/web.browser/import_globals.js"
+      ],
+      "meteor/ecmascript": [
+        "/Users/babybus/.meteor/packages/ecmascript/0.16.12/web.browser/ecmascript.js"
+      ],
+      "meteor/shell-server": [
+        "/Users/babybus/.meteor/packages/shell-server/0.6.1/web.browser/main.js",
+        "/Users/babybus/.meteor/packages/shell-server/0.6.1/web.browser/shell-server.js"
+      ],
+      "meteor/hot-module-replacement": [
+        "/Users/babybus/.meteor/packages/hot-module-replacement/0.5.4/web.browser/hot-api.js",
+        "/Users/babybus/.meteor/packages/hot-module-replacement/0.5.4/web.browser/client.js",
+        "/Users/babybus/.meteor/packages/hot-module-replacement/0.5.4/web.browser/server.js"
+      ],
+      "meteor/react-meteor-data": [
+        "/Users/babybus/.meteor/packages/react-meteor-data/4.0.0/web.browser/suspense/index.js"
+      ]
+    }
+  },
+  "typeAcquisition": {
+    "include": [
+      "meteor"
+    ]
+  },
+  "exclude": [
+    "node_modules",
+    ".meteor"
+  ]
+}
