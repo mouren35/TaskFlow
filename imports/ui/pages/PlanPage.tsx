@@ -17,10 +17,10 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 import MailIcon from "@mui/icons-material/Mail";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import MoreIcon from "@mui/icons-material/MoreVert";
+import AddIcon from "@mui/icons-material/Add";
 import {
   Box,
   Stack,
-  TextField,
   Button,
   Typography,
   Paper,
@@ -28,7 +28,11 @@ import {
   ListItem,
   ListItemText,
   Chip,
+  Tooltip,
+  Zoom,
 } from "@mui/material";
+import AddTaskDialog from "../components/AddTaskDialog";
+import { Task } from "../../models/task";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -69,10 +73,20 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
+// 分类颜色映射
+const categoryColors: Record<string, string> = {
+  social: "#f44336", // 人际关系 - 红色
+  mind: "#2196f3",  // 心智 - 蓝色
+  health: "#4caf50", // 健康 - 绿色
+  work: "#9c27b0",   // 工作 - 紫色
+  hobby: "#ff9800",  // 兴趣爱好 - 橙色
+  uncategorized: "#9e9e9e" // 未分类 - 灰色
+};
+
 const PlanPage: React.FC = () => {
-  const { tasks, timeblocks, insertTask } = useTasksViewModel();
-  const [title, setTitle] = useState("");
+  const { tasks, timeBlocks, insertTask } = useTasksViewModel();
   const [searchTerm, setSearchTerm] = useState("");
+  const [isAddTaskDialogOpen, setIsAddTaskDialogOpen] = useState(false);
 
   // menu state for AppBar
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -99,15 +113,28 @@ const PlanPage: React.FC = () => {
     setMobileMoreAnchorEl(event.currentTarget);
   };
 
-  const onAdd = async () => {
-    if (!title) return;
-    // minimal payload
+  const handleOpenAddTaskDialog = () => {
+    setIsAddTaskDialogOpen(true);
+  };
+
+  const handleCloseAddTaskDialog = () => {
+    setIsAddTaskDialogOpen(false);
+  };
+
+  const handleSaveTask = async (taskData: Omit<Task, '_id' | 'createdAt' | 'status' | 'completedAt'>) => {
     try {
-      await insertTask({ title, estimatedMinutes: 25 });
+      await insertTask({
+        title: taskData.title,
+        category: taskData.category,
+        estimatedTime: taskData.estimatedTime,
+        notes: taskData.notes ,
+        status: 'pending',
+        blockId: taskData.blockId
+      });
     } catch (e) {
-      // ignore for now
+      // 错误处理可以在这里添加，例如显示提示消息
+      console.error('添加任务失败:', e);
     }
-    setTitle("");
   };
 
   return (
@@ -266,25 +293,39 @@ const PlanPage: React.FC = () => {
       <Stack spacing={2}>
         <Typography variant="h5">计划</Typography>
 
-        {/* input area */}
-        <Stack
-          direction={{ xs: "column", sm: "row" }}
-          spacing={1}
-          alignItems="center"
-        >
-          <TextField
-            fullWidth
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="新建任务标题"
-            variant="outlined"
-            size="small"
-            sx={{ backgroundColor: "transparent" }}
-          />
-          <Button variant="contained" onClick={onAdd} size="medium">
-            添加
-          </Button>
-        </Stack>
+        {/* 添加任务按钮 */}
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+          <Tooltip title="添加新任务" arrow>
+            <Zoom in={true}>
+              <Button
+                variant="contained"
+                color="primary"
+                startIcon={<AddIcon />}
+                onClick={handleOpenAddTaskDialog}
+                sx={{
+                  borderRadius: 8,
+                  px: 3,
+                  boxShadow: 2,
+                  '&:hover': {
+                    transform: 'scale(1.05)',
+                    boxShadow: 4,
+                  },
+                  transition: 'all 0.2s'
+                }}
+              >
+                添加任务
+              </Button>
+            </Zoom>
+          </Tooltip>
+        </Box>
+        
+        {/* 添加任务对话框 */}
+        <AddTaskDialog
+          open={isAddTaskDialogOpen}
+          onClose={handleCloseAddTaskDialog}
+          onSave={handleSaveTask}
+          title="添加新任务"
+        />
 
         {/* responsive layout: left column (timeblocks) and right column (tasks) */}
         <Box
@@ -298,13 +339,57 @@ const PlanPage: React.FC = () => {
             <Typography variant="h6" sx={{ mb: 1 }}>
               时间块
             </Typography>
-            <Paper elevation={0} sx={{ p: 1 }}>
-              <List>
-                {timeblocks.map((tb) => (
-                  <ListItem key={tb._id} divider disableGutters>
-                    <ListItemText primary={tb.title} />
-                  </ListItem>
-                ))}
+            <Paper 
+              elevation={2} 
+              sx={{ 
+                p: 1, 
+                borderRadius: 2,
+                overflow: 'hidden'
+              }}
+            >
+              <List sx={{ p: 0 }}>
+                {timeBlocks.length > 0 ? (
+                  timeBlocks.map((tb, index) => (
+                    <Zoom 
+                      in={true} 
+                      style={{ transitionDelay: `${index * 30}ms` }} 
+                      key={tb._id}
+                    >
+                      <ListItem 
+                        divider 
+                        disableGutters
+                        sx={{
+                          p: 1.5,
+                          borderRadius: 1,
+                          mb: 0.5,
+                          '&:hover': {
+                            bgcolor: 'action.hover',
+                          },
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        <ListItemText 
+                          primary={
+                            <Typography variant="subtitle2" sx={{ fontWeight: 500 }}>
+                              {tb.title}
+                            </Typography>
+                          } 
+                          secondary={
+                            <Typography variant="caption" color="text.secondary">
+                              {new Date(tb.date).toLocaleDateString()} {tb.startTime}-{tb.endTime}
+                            </Typography>
+                          }
+                        />
+                      </ListItem>
+                    </Zoom>
+                  ))
+                ) : (
+                  <Box sx={{ p: 2, textAlign: 'center' }}>
+                    <Typography color="text.secondary" variant="body2">
+                      暂无时间块
+                    </Typography>
+                  </Box>
+                )}
               </List>
             </Paper>
           </Box>
@@ -321,29 +406,71 @@ const PlanPage: React.FC = () => {
                 gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)" },
               }}
             >
-              {tasks.map((t) => (
-                <Paper key={t._id} elevation={0} sx={{ p: 2 }}>
-                  <Stack
-                    direction="row"
-                    justifyContent="space-between"
-                    alignItems="center"
+              {tasks.length > 0 ? (
+                tasks.map((t, index) => (
+                  <Zoom 
+                    in={true} 
+                    style={{ transitionDelay: `${index * 50}ms` }} 
+                    key={t._id}
                   >
-                    <Box>
-                      <Typography variant="subtitle1">{t.title}</Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {t.estimatedMinutes} 分钟
-                      </Typography>
-                    </Box>
-                    <Box>
-                      {t.completed ? (
-                        <Chip label="已完成" color="success" size="small" />
-                      ) : (
-                        <Chip label="未完成" size="small" />
-                      )}
-                    </Box>
-                  </Stack>
-                </Paper>
-              ))}
+                    <Paper 
+                      elevation={1} 
+                      sx={{ 
+                        p: 2, 
+                        borderRadius: 2,
+                        transition: 'all 0.3s',
+                        '&:hover': {
+                          transform: 'translateY(-4px)',
+                          boxShadow: 3,
+                        },
+                        borderLeft: `4px solid ${t.category ? categoryColors[t.category] : '#9e9e9e'}`
+                      }}
+                    >
+                      <Stack
+                        direction="row"
+                        justifyContent="space-between"
+                        alignItems="center"
+                      >
+                        <Box>
+                          <Typography variant="subtitle1" sx={{ fontWeight: 500 }}>
+                            {t.title}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            {t.estimatedTime} 分钟
+                            {t.notes && (
+                              <Tooltip title={t.notes} arrow placement="bottom-start">
+                                <Box component="span" sx={{ ml: 1, cursor: 'help', textDecoration: 'underline dotted' }}>...</Box>
+                              </Tooltip>
+                            )}
+                          </Typography>
+                        </Box>
+                        <Box>
+                          {t.status === 'completed' ? (
+                            <Chip 
+                              label="已完成" 
+                              color="success" 
+                              size="small" 
+                              sx={{ fontWeight: 500 }}
+                            />
+                          ) : (
+                            <Chip 
+                              label="未完成" 
+                              size="small" 
+                              sx={{ fontWeight: 500 }}
+                            />
+                          )}
+                        </Box>
+                      </Stack>
+                    </Paper>
+                  </Zoom>
+                ))
+              ) : (
+                <Box sx={{ p: 4, textAlign: 'center', gridColumn: '1 / -1' }}>
+                  <Typography color="text.secondary">
+                    暂无任务，点击"添加任务"按钮创建新任务
+                  </Typography>
+                </Box>
+              )}
             </Box>
           </Box>
         </Box>

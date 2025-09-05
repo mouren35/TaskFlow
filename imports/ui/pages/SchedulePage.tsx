@@ -27,8 +27,18 @@ import {
   HealthAndSafety,
   Work,
   Interests,
+  CheckCircle,
 } from "@mui/icons-material";
-import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, isSameMonth, isSameDay } from "date-fns";
+import {
+  format,
+  startOfMonth,
+  endOfMonth,
+  startOfWeek,
+  endOfWeek,
+  addDays,
+  isSameMonth,
+  isSameDay,
+} from "date-fns";
 import { zhCN } from "date-fns/locale";
 
 interface Task {
@@ -89,15 +99,19 @@ const SchedulePage: React.FC = () => {
   }
 
   const handlePrevMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1));
+    setCurrentDate(
+      new Date(currentDate.getFullYear(), currentDate.getMonth() - 1)
+    );
   };
 
   const handleNextMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1));
+    setCurrentDate(
+      new Date(currentDate.getFullYear(), currentDate.getMonth() + 1)
+    );
   };
 
   const getTasksForDate = (date: Date) => {
-    return tasks.filter(task => isSameDay(task.date, date));
+    return tasks.filter((task) => isSameDay(task.date, date));
   };
 
   const handleDateClick = (date: Date) => {
@@ -109,7 +123,8 @@ const SchedulePage: React.FC = () => {
       label={task.title}
       size="small"
       sx={{
-        backgroundColor: categoryColors[task.category as keyof typeof categoryColors],
+        backgroundColor:
+          categoryColors[task.category as keyof typeof categoryColors],
         color: "#fff",
         height: 20,
         fontSize: "0.75rem",
@@ -146,7 +161,7 @@ const SchedulePage: React.FC = () => {
       {/* 星期标题 */}
       <Grid container sx={{ background: "#f5f5f5", p: 1 }}>
         {["一", "二", "三", "四", "五", "六", "日"].map((day) => (
-          <Grid item xs key={day}>
+          <Grid key={day}>
             <Typography align="center" variant="body2" color="text.secondary">
               {day}
             </Typography>
@@ -164,8 +179,6 @@ const SchedulePage: React.FC = () => {
 
           return (
             <Grid
-              item
-              xs={12 / 7}
               key={day.toISOString()}
               sx={{
                 borderRight: "1px solid #eee",
@@ -214,7 +227,8 @@ const SchedulePage: React.FC = () => {
         fullWidth
       >
         <DialogTitle>
-          {selectedDate && format(selectedDate, "yyyy年M月d日", { locale: zhCN })}
+          {selectedDate &&
+            format(selectedDate, "yyyy年M月d日", { locale: zhCN })}
         </DialogTitle>
         <DialogContent>
           {selectedDate && (
@@ -237,7 +251,10 @@ const SchedulePage: React.FC = () => {
                             width: 12,
                             height: 12,
                             borderRadius: "50%",
-                            background: categoryColors[task.category as keyof typeof categoryColors],
+                            background:
+                              categoryColors[
+                                task.category as keyof typeof categoryColors
+                              ],
                             mr: 2,
                           }}
                         />
@@ -247,13 +264,19 @@ const SchedulePage: React.FC = () => {
                             {task.category}
                           </Typography>
                         </Box>
-                        {task.completed && <CheckCircle sx={{ color: "#4caf50" }} />}
+                        {task.completed && (
+                          <CheckCircle sx={{ color: "#4caf50" }} />
+                        )}
                       </Box>
                     </CardContent>
                   </Card>
                 ))
               ) : (
-                <Typography variant="body2" color="text.secondary" align="center">
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  align="center"
+                >
                   今天没有安排任务
                 </Typography>
               )}

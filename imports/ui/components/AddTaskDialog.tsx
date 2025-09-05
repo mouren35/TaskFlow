@@ -1,0 +1,205 @@
+import React, { useState, useEffect } from 'react';
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Button,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Box,
+  Typography,
+  Slide,
+} from '@mui/material';
+import { TransitionProps } from '@mui/material/transitions';
+import { Task } from '../../models/task';
+
+// 滑动动画效果
+const Transition = React.forwardRef(function Transition(
+  props: TransitionProps & {
+    children: React.ReactElement;
+  },
+  ref: React.Ref<unknown>,
+) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
+
+// 分类颜色映射
+const categoryColors = {
+  social: "#f44336", // 人际关系 - 红色
+  mind: "#2196f3",  // 心智 - 蓝色
+  health: "#4caf50", // 健康 - 绿色
+  work: "#9c27b0",   // 工作 - 紫色
+  hobby: "#ff9800",  // 兴趣爱好 - 橙色
+  uncategorized: "#9e9e9e" // 未分类 - 灰色
+};
+
+// 分类标签映射
+const categoryLabels = {
+  social: "人际",
+  mind: "心智",
+  health: "健康",
+  work: "工作",
+  hobby: "兴趣",
+  uncategorized: "未分类"
+};
+
+interface AddTaskDialogProps {
+  open: boolean;
+  onClose: () => void;
+  onSave: (task: Omit<Task, '_id' | 'createdAt' | 'status' | 'completedAt'>) => void;
+  blockId?: string;
+  initialTask?: Partial<Task>;
+  title?: string;
+}
+
+const AddTaskDialog: React.FC<AddTaskDialogProps> = ({
+  open,
+  onClose,
+  onSave,
+  blockId,
+  initialTask,
+  title = '添加任务'
+}) => {
+  // 表单状态
+  const [taskTitle, setTaskTitle] = useState('');
+  const [category, setCategory] = useState<Task['category']>('uncategorized');
+  const [estimatedTime, setEstimatedTime] = useState(25); // 默认25分钟
+  const [notes, setNotes] = useState('');
+
+  // 当对话框打开或初始任务变化时，重置表单
+  useEffect(() => {
+    if (open) {
+      if (initialTask) {
+        setTaskTitle(initialTask.title || '');
+        setCategory(initialTask.category || 'uncategorized');
+        setEstimatedTime(initialTask.estimatedTime || 25);
+        setNotes(initialTask.notes || '');
+      } else {
+        // 新任务的默认值
+        setTaskTitle('');
+        setCategory('uncategorized');
+        setEstimatedTime(25);
+        setNotes('');
+      }
+    }
+  }, [open, initialTask]);
+
+  // 保存任务
+  const handleSave = () => {
+    if (!taskTitle.trim()) {
+      return; // 不允许空标题
+    }
+
+    const taskData: Omit<Task, '_id' | 'createdAt' | 'status' | 'completedAt'> = {
+      blockId: blockId || '',
+      title: taskTitle.trim(),
+      category,
+      estimatedTime,
+      notes: notes.trim() || undefined,
+    };
+
+    onSave(taskData);
+    onClose();
+  };
+
+  return (
+    <Dialog 
+      open={open} 
+      onClose={onClose}
+      TransitionComponent={Transition}
+      maxWidth="sm" 
+      fullWidth
+    >
+      <DialogTitle sx={{ pb: 1 }}>{title}</DialogTitle>
+      
+      <DialogContent sx={{ pb: 2 }}>
+        <TextField
+          autoFocus
+          margin="dense"
+          label="任务标题"
+          fullWidth
+          variant="outlined"
+          value={taskTitle}
+          onChange={(e) => setTaskTitle(e.target.value)}
+          sx={{ mb: 2 }}
+        />
+        
+        <FormControl fullWidth sx={{ mb: 2 }}>
+          <InputLabel>分类</InputLabel>
+          <Select
+            value={category}
+            onChange={(e) => setCategory(e.target.value as Task['category'])}
+            label="分类"
+          >
+            {Object.entries(categoryLabels).map(([value, label]) => (
+              <MenuItem key={value} value={value}>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Box 
+                    sx={{ 
+                      width: 12, 
+                      height: 12, 
+                      borderRadius: '50%', 
+                      bgcolor: categoryColors[value as keyof typeof categoryColors],
+                      mr: 1 
+                    }} 
+                  />
+                  {label}
+                </Box>
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="subtitle2" gutterBottom>
+            预计时间（分钟）
+          </Typography>
+          <TextField
+            type="number"
+            variant="outlined"
+            fullWidth
+            value={estimatedTime}
+            onChange={(e) => {
+              const value = parseInt(e.target.value);
+              if (!isNaN(value) && value > 0 && value <= 180) {
+                setEstimatedTime(value);
+              }
+            }}
+            inputProps={{ min: 1, max: 180 }}
+            helperText="请输入1-180之间的分钟数"
+          />
+        </Box>
+        
+        <TextField
+          margin="dense"
+          label="备注（可选）"
+          fullWidth
+          multiline
+          rows={3}
+          variant="outlined"
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+        />
+      </DialogContent>
+      
+      <DialogActions sx={{ px: 3, pb: 2 }}>
+        <Button onClick={onClose} color="inherit">
+          取消
+        </Button>
+        <Button 
+          onClick={handleSave} 
+          variant="contained"
+          disabled={!taskTitle.trim()}
+        >
+          保存
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+export default AddTaskDialog;
