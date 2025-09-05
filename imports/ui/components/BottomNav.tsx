@@ -3,7 +3,7 @@
 
 import React from "react";
 import { useLocation, useHistory } from "react-router-dom";
-import { BottomNavigation, BottomNavigationAction } from "@mui/material";
+import { BottomNavigation, BottomNavigationAction, Paper } from "@mui/material";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
 import EmojiObjectsOutlinedIcon from "@mui/icons-material/EmojiObjectsOutlined";
@@ -23,8 +23,9 @@ const BottomNav: React.FC = () => {
     navs.find((n) => location.pathname.startsWith(n.value))?.value || "/plan";
 
   return (
-    <nav
-      style={{
+    <Paper
+      elevation={3}
+      sx={{
         position: "fixed",
         bottom: 0,
         left: 0,
@@ -32,12 +33,22 @@ const BottomNav: React.FC = () => {
         zIndex: 100,
         borderTop: "1px solid #eee",
         background: "#fff",
+        width: "100vw",
+        margin: "0 auto",
+        paddingBottom: "env(safe-area-inset-bottom)",
       }}
+      square
     >
       <BottomNavigation
         value={current}
         onChange={(_, value) => history.push(value)}
         showLabels
+        sx={{
+          width: "100vw",
+          margin: "0 auto",
+          display: "flex",
+          position: "relative",
+        }}
       >
         {navs.map((nav) => (
           <BottomNavigationAction
@@ -45,10 +56,16 @@ const BottomNav: React.FC = () => {
             label={nav.label}
             value={nav.value}
             icon={nav.icon}
+            sx={{
+              flex: 1,
+              minWidth: 0,
+              maxWidth: "none",
+              justifyContent: "center",
+            }}
           />
         ))}
       </BottomNavigation>
-    </nav>
+    </Paper>
   );
 };
 

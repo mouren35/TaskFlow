@@ -9,13 +9,23 @@ import SearchPage from "./pages/SearchPage";
 import TaskDetailPage from "./pages/TaskDetailPage";
 import ErrorPage from "./components/ErrorPage";
 import BottomNav from "./components/BottomNav";
+import Box from "@mui/material/Box";
 
 export const App = () => (
   <BrowserRouter>
-    <div
-      style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
+    <Box
+      sx={{
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        maxWidth: 480,
+        margin: "0 auto",
+        background: "#fafafa",
+        position: "relative",
+        boxSizing: "border-box",
+      }}
     >
-      <div style={{ flex: 1 }}>
+      <Box sx={{ flex: 1, pb: "env(safe-area-inset-bottom)" }}>
         <Switch>
           <Route exact path="/" render={() => <Redirect to="/plan" />} />
           <Route path="/plan" component={PlanPage} />
@@ -27,8 +37,8 @@ export const App = () => (
           <Route path="/task/:id" component={TaskDetailPage} />
           <Route component={ErrorPage} />
         </Switch>
-      </div>
+      </Box>
       <BottomNav />
-    </div>
+    </Box>
   </BrowserRouter>
 );

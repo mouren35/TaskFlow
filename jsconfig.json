@@ -9,45 +9,45 @@
         "./*"
       ],
       "meteor/mongo": [
-        "C:\\Users\\mouren\\AppData\\Local/.meteor/packages/mongo/2.1.3/web.browser/local_collection_driver.js",
-        "C:\\Users\\mouren\\AppData\\Local/.meteor/packages/mongo/2.1.3/web.browser/collection/collection.js",
-        "C:\\Users\\mouren\\AppData\\Local/.meteor/packages/mongo/2.1.3/web.browser/asynchronous_cursor.js",
-        "C:\\Users\\mouren\\AppData\\Local/.meteor/packages/mongo/2.1.3/web.browser/doc_fetcher.js",
-        "C:\\Users\\mouren\\AppData\\Local/.meteor/packages/mongo/2.1.3/web.browser/mongo_common.js",
-        "C:\\Users\\mouren\\AppData\\Local/.meteor/packages/mongo/2.1.3/web.browser/mongo_connection.js",
-        "C:\\Users\\mouren\\AppData\\Local/.meteor/packages/mongo/2.1.3/web.browser/mongo_driver.js",
-        "C:\\Users\\mouren\\AppData\\Local/.meteor/packages/mongo/2.1.3/web.browser/mongo_utils.js",
-        "C:\\Users\\mouren\\AppData\\Local/.meteor/packages/mongo/2.1.3/web.browser/oplog_observe_driver.js",
-        "C:\\Users\\mouren\\AppData\\Local/.meteor/packages/mongo/2.1.3/web.browser/collection/collection_utils.js",
-        "C:\\Users\\mouren\\AppData\\Local/.meteor/packages/mongo/2.1.3/web.browser/collection/methods_async.js",
-        "C:\\Users\\mouren\\AppData\\Local/.meteor/packages/mongo/2.1.3/web.browser/collection/methods_index.js",
-        "C:\\Users\\mouren\\AppData\\Local/.meteor/packages/mongo/2.1.3/web.browser/collection/methods_replication.js",
-        "C:\\Users\\mouren\\AppData\\Local/.meteor/packages/mongo/2.1.3/web.browser/collection/methods_sync.js"
+        "/Users/babybus/.meteor/packages/mongo/2.1.3/web.browser/local_collection_driver.js",
+        "/Users/babybus/.meteor/packages/mongo/2.1.3/web.browser/collection/collection.js",
+        "/Users/babybus/.meteor/packages/mongo/2.1.3/web.browser/asynchronous_cursor.js",
+        "/Users/babybus/.meteor/packages/mongo/2.1.3/web.browser/doc_fetcher.js",
+        "/Users/babybus/.meteor/packages/mongo/2.1.3/web.browser/mongo_common.js",
+        "/Users/babybus/.meteor/packages/mongo/2.1.3/web.browser/mongo_connection.js",
+        "/Users/babybus/.meteor/packages/mongo/2.1.3/web.browser/mongo_driver.js",
+        "/Users/babybus/.meteor/packages/mongo/2.1.3/web.browser/mongo_utils.js",
+        "/Users/babybus/.meteor/packages/mongo/2.1.3/web.browser/oplog_observe_driver.js",
+        "/Users/babybus/.meteor/packages/mongo/2.1.3/web.browser/collection/collection_utils.js",
+        "/Users/babybus/.meteor/packages/mongo/2.1.3/web.browser/collection/methods_async.js",
+        "/Users/babybus/.meteor/packages/mongo/2.1.3/web.browser/collection/methods_index.js",
+        "/Users/babybus/.meteor/packages/mongo/2.1.3/web.browser/collection/methods_replication.js",
+        "/Users/babybus/.meteor/packages/mongo/2.1.3/web.browser/collection/methods_sync.js"
       ],
       "meteor/reactive-var": [
-        "C:\\Users\\mouren\\AppData\\Local/.meteor/packages/reactive-var/1.0.13/web.browser/reactive-var.js"
+        "/Users/babybus/.meteor/packages/reactive-var/1.0.13/web.browser/reactive-var.js"
       ],
       "meteor/es5-shim": [
-        "C:\\Users\\mouren\\AppData\\Local/.meteor/packages/es5-shim/4.8.1/web.browser/client.js",
-        "C:\\Users\\mouren\\AppData\\Local/.meteor/packages/es5-shim/4.8.1/web.browser/console.js",
-        "C:\\Users\\mouren\\AppData\\Local/.meteor/packages/es5-shim/4.8.1/web.browser/cordova.js",
-        "C:\\Users\\mouren\\AppData\\Local/.meteor/packages/es5-shim/4.8.1/web.browser/export_globals.js",
-        "C:\\Users\\mouren\\AppData\\Local/.meteor/packages/es5-shim/4.8.1/web.browser/import_globals.js"
+        "/Users/babybus/.meteor/packages/es5-shim/4.8.1/web.browser/client.js",
+        "/Users/babybus/.meteor/packages/es5-shim/4.8.1/web.browser/console.js",
+        "/Users/babybus/.meteor/packages/es5-shim/4.8.1/web.browser/cordova.js",
+        "/Users/babybus/.meteor/packages/es5-shim/4.8.1/web.browser/export_globals.js",
+        "/Users/babybus/.meteor/packages/es5-shim/4.8.1/web.browser/import_globals.js"
       ],
       "meteor/ecmascript": [
-        "C:\\Users\\mouren\\AppData\\Local/.meteor/packages/ecmascript/0.16.12/web.browser/ecmascript.js"
+        "/Users/babybus/.meteor/packages/ecmascript/0.16.12/web.browser/ecmascript.js"
       ],
       "meteor/shell-server": [
-        "C:\\Users\\mouren\\AppData\\Local/.meteor/packages/shell-server/0.6.1/web.browser/main.js",
-        "C:\\Users\\mouren\\AppData\\Local/.meteor/packages/shell-server/0.6.1/web.browser/shell-server.js"
+        "/Users/babybus/.meteor/packages/shell-server/0.6.1/web.browser/main.js",
+        "/Users/babybus/.meteor/packages/shell-server/0.6.1/web.browser/shell-server.js"
       ],
       "meteor/hot-module-replacement": [
-        "C:\\Users\\mouren\\AppData\\Local/.meteor/packages/hot-module-replacement/0.5.4/web.browser/hot-api.js",
-        "C:\\Users\\mouren\\AppData\\Local/.meteor/packages/hot-module-replacement/0.5.4/web.browser/client.js",
-        "C:\\Users\\mouren\\AppData\\Local/.meteor/packages/hot-module-replacement/0.5.4/web.browser/server.js"
+        "/Users/babybus/.meteor/packages/hot-module-replacement/0.5.4/web.browser/hot-api.js",
+        "/Users/babybus/.meteor/packages/hot-module-replacement/0.5.4/web.browser/client.js",
+        "/Users/babybus/.meteor/packages/hot-module-replacement/0.5.4/web.browser/server.js"
       ],
       "meteor/react-meteor-data": [
-        "C:\\Users\\mouren\\AppData\\Local/.meteor/packages/react-meteor-data/4.0.0/web.browser/suspense/index.js"
+        "/Users/babybus/.meteor/packages/react-meteor-data/4.0.0/web.browser/suspense/index.js"
       ]
     }
   },
