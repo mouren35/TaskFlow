@@ -1,22 +1,17 @@
 // PlanPage.tsx
 // 计划页面（首页）
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useTasksViewModel } from "../../viewModels/useTasksViewModel";
 import { styled, alpha } from "@mui/material/styles";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import InputBase from "@mui/material/InputBase";
-import Badge from "@mui/material/Badge";
 import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
 import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
-import AccountCircle from "@mui/icons-material/AccountCircle";
-import MailIcon from "@mui/icons-material/Mail";
-import NotificationsIcon from "@mui/icons-material/Notifications";
-import MoreIcon from "@mui/icons-material/MoreVert";
 import AddIcon from "@mui/icons-material/Add";
 import {
   Box,
@@ -30,9 +25,13 @@ import {
   Chip,
   Tooltip,
   Zoom,
+  Divider,
 } from "@mui/material";
 import AddTaskDialog from "../components/AddTaskDialog";
+import NewTimeBlockDialog from "../components/NewTimeBlockDialog";
 import { Task } from "../../models/task";
+import { useHistory } from "react-router-dom";
+import { useSwipeable } from "react-swipeable";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -75,42 +74,107 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 // 分类颜色映射
 const categoryColors: Record<string, string> = {
-  social: "#f44336", // 人际关系 - 红色
-  mind: "#2196f3", // 心智 - 蓝色
-  health: "#4caf50", // 健康 - 绿色
-  work: "#9c27b0", // 工作 - 紫色
-  hobby: "#ff9800", // 兴趣爱好 - 橙色
-  uncategorized: "#9e9e9e", // 未分类 - 灰色
+  social: "#f44336",
+  mind: "#2196f3",
+  health: "#4caf50",
+  work: "#9c27b0",
+  hobby: "#ff9800",
+  uncategorized: "#9e9e9e",
+};
+
+// 单个任务卡片（将 useSwipeable 放在子组件中，保证 Hooks 顺序稳定）
+const TaskCard: React.FC<{
+  task: Task;
+  onStart: (id: string) => void;
+  onComplete: (id: string, minutes: number) => void;
+}> = ({ task, onStart, onComplete }) => {
+  const swipeHandlers = useSwipeable({
+    onSwipedLeft: () => onStart(task._id as string),
+    onSwipedRight: () =>
+      onComplete(task._id as string, task.estimatedTime || 0),
+    delta: 30,
+    preventScrollOnSwipe: true,
+    trackTouch: true,
+  });
+
+  return (
+    <Paper
+      {...swipeHandlers}
+      elevation={1}
+      sx={{
+        p: 2,
+        borderRadius: 2,
+        transition: "all 0.2s",
+        borderLeft: `4px solid ${task.category ? categoryColors[task.category] : "#9e9e9e"}`,
+        "&:active": { transform: "scale(0.99)" },
+      }}
+    >
+      <Stack direction="row" justifyContent="space-between" alignItems="center">
+        <Box>
+          <Typography variant="subtitle1" sx={{ fontWeight: 500 }}>
+            {task.title || "未定义"}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {task.estimatedTime} 分钟
+            {task.notes && (
+              <Tooltip title={task.notes} arrow placement="bottom-start">
+                <Box
+                  component="span"
+                  sx={{
+                    ml: 1,
+                    cursor: "help",
+                    textDecoration: "underline dotted",
+                  }}
+                >
+                  ...
+                </Box>
+              </Tooltip>
+            )}
+          </Typography>
+        </Box>
+        <Chip
+          label={
+            task.status === "completed"
+              ? "已完成"
+              : task.status === "inProgress"
+                ? "进行中"
+                : "未完成"
+          }
+          size="small"
+          sx={{ fontWeight: 500 }}
+        />
+      </Stack>
+    </Paper>
+  );
 };
 
 const PlanPage: React.FC = () => {
-  const { tasks, timeBlocks, insertTask } = useTasksViewModel();
+  const history = useHistory();
+  const {
+    tasks,
+    timeBlocks,
+    insertTask,
+    insertTimeBlock,
+    selectedDate,
+    setSelectedDate,
+    startTask,
+    completeTask,
+  } = useTasksViewModel();
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddTaskDialogOpen, setIsAddTaskDialogOpen] = useState(false);
+  const [newBlockOpen, setNewBlockOpen] = useState(false);
 
   // menu state for AppBar
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] =
-    useState<null | HTMLElement>(null);
 
   const isMenuOpen = Boolean(anchorEl);
-  const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 
-  const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
-  };
-
-  const handleMobileMenuClose = () => {
-    setMobileMoreAnchorEl(null);
   };
 
   const handleMenuClose = () => {
     setAnchorEl(null);
-    handleMobileMenuClose();
-  };
-
-  const handleMobileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setMobileMoreAnchorEl(event.currentTarget);
   };
 
   const handleOpenAddTaskDialog = () => {
@@ -134,10 +198,62 @@ const PlanPage: React.FC = () => {
         blockId: taskData.blockId,
       });
     } catch (e) {
-      // 错误处理可以在这里添加，例如显示提示消息
       console.error("添加任务失败:", e);
     }
   };
+
+  // 周条（当周7天）
+  const startOfWeek = (() => {
+    const d = new Date(selectedDate);
+    const day = d.getDay() || 7;
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() - (day - 1));
+    return d;
+  })();
+
+  const daysOfWeek = Array.from({ length: 7 }).map((_, idx) => {
+    const d = new Date(startOfWeek);
+    d.setDate(startOfWeek.getDate() + idx);
+    return d;
+  });
+
+  const handleCreateTimeBlock = async (data: {
+    title: string;
+    date: Date;
+    startTime: string;
+    endTime?: string;
+  }) => {
+    try {
+      await insertTimeBlock({
+        title: data.title,
+        date: data.date,
+        startTime: data.startTime,
+        endTime: data.endTime,
+      } as any);
+      setNewBlockOpen(false);
+    } catch (e) {
+      console.error("创建时间块失败", e);
+    }
+  };
+
+  // 计算已完成任务时间轴数据
+  const completedTimeline = useMemo(() => {
+    const completed = tasks.filter(
+      (t) => t.status === "completed" && t.completedAt
+    );
+    completed.sort(
+      (a, b) =>
+        new Date(b.completedAt as any).getTime() -
+        new Date(a.completedAt as any).getTime()
+    );
+    const groups: Record<string, Task[]> = {};
+    completed.forEach((t) => {
+      const key = new Date(t.completedAt as any).toLocaleDateString();
+      groups[key] = groups[key] || [];
+      groups[key].push(t);
+    });
+    return groups;
+  }, [tasks]);
 
   return (
     <Box sx={{ p: 0 }}>
@@ -149,147 +265,89 @@ const PlanPage: React.FC = () => {
               size="large"
               edge="start"
               color="inherit"
-              aria-label="open drawer"
-              sx={{ mr: 2 }}
+              aria-label="menu"
+              sx={{ mr: 1 }}
+              onClick={handleMenuOpen}
             >
               <MenuIcon />
             </IconButton>
-            <Typography
-              variant="h6"
-              noWrap
-              component="div"
-              sx={{ display: { xs: "none", sm: "block" } }}
-            >
-              TaskFlow
-            </Typography>
+
             <Search>
               <SearchIconWrapper>
                 <SearchIcon />
               </SearchIconWrapper>
               <StyledInputBase
-                placeholder="Search…"
+                placeholder="搜索任务…"
                 inputProps={{ "aria-label": "search" }}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </Search>
+
             <Box sx={{ flexGrow: 1 }} />
-            <Box sx={{ display: { xs: "none", md: "flex" } }}>
-              <IconButton
-                size="large"
-                aria-label="show 4 new mails"
-                color="inherit"
-              >
-                <Badge badgeContent={4} color="error">
-                  <MailIcon />
-                </Badge>
-              </IconButton>
-              <IconButton
-                size="large"
-                aria-label="show 17 new notifications"
-                color="inherit"
-              >
-                <Badge badgeContent={17} color="error">
-                  <NotificationsIcon />
-                </Badge>
-              </IconButton>
-              <IconButton
-                size="large"
-                edge="end"
-                aria-label="account of current user"
-                aria-controls={"primary-search-account-menu"}
-                aria-haspopup="true"
-                onClick={handleProfileMenuOpen}
-                color="inherit"
-              >
-                <AccountCircle />
-              </IconButton>
-            </Box>
-            <Box sx={{ display: { xs: "flex", md: "none" } }}>
-              <IconButton
-                size="large"
-                aria-label="show more"
-                aria-controls={"primary-search-account-menu-mobile"}
-                aria-haspopup="true"
-                onClick={handleMobileMenuOpen}
-                color="inherit"
-              >
-                <MoreIcon />
-              </IconButton>
-            </Box>
+
+            <Button color="inherit" onClick={() => setNewBlockOpen(true)}>
+              新建时间块
+            </Button>
+            <Button color="inherit" onClick={() => history.push("/pending")}>
+              待处理
+            </Button>
           </Toolbar>
         </AppBar>
-        {/* menus */}
+
+        {/* 菜单 */}
         <Menu
           anchorEl={anchorEl}
-          anchorOrigin={{
-            vertical: "top",
-            horizontal: "right",
-          }}
-          id={"primary-search-account-menu"}
-          keepMounted
-          transformOrigin={{
-            vertical: "top",
-            horizontal: "right",
-          }}
           open={isMenuOpen}
           onClose={handleMenuClose}
+          anchorOrigin={{ vertical: "top", horizontal: "left" }}
+          transformOrigin={{ vertical: "top", horizontal: "left" }}
         >
-          <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-          <MenuItem onClick={handleMenuClose}>My account</MenuItem>
-        </Menu>
-        <Menu
-          anchorEl={mobileMoreAnchorEl}
-          anchorOrigin={{
-            vertical: "top",
-            horizontal: "right",
-          }}
-          id={"primary-search-account-menu-mobile"}
-          keepMounted
-          transformOrigin={{
-            vertical: "top",
-            horizontal: "right",
-          }}
-          open={isMobileMenuOpen}
-          onClose={handleMobileMenuClose}
-        >
-          <MenuItem>
-            <IconButton
-              size="large"
-              aria-label="show 4 new mails"
-              color="inherit"
-            >
-              <Badge badgeContent={4} color="error">
-                <MailIcon />
-              </Badge>
-            </IconButton>
-            <p>Messages</p>
+          <MenuItem
+            onClick={() => {
+              setNewBlockOpen(true);
+              handleMenuClose();
+            }}
+          >
+            新建时间块
           </MenuItem>
-          <MenuItem>
-            <IconButton
-              size="large"
-              aria-label="show 17 new notifications"
-              color="inherit"
-            >
-              <Badge badgeContent={17} color="error">
-                <NotificationsIcon />
-              </Badge>
-            </IconButton>
-            <p>Notifications</p>
-          </MenuItem>
-          <MenuItem onClick={handleProfileMenuOpen}>
-            <IconButton
-              size="large"
-              aria-label="account of current user"
-              aria-controls="primary-search-account-menu"
-              aria-haspopup="true"
-              color="inherit"
-            >
-              <AccountCircle />
-            </IconButton>
-            <p>Profile</p>
+          <MenuItem
+            onClick={() => {
+              history.push("/pending");
+              handleMenuClose();
+            }}
+          >
+            待处理事项
           </MenuItem>
         </Menu>
+      </Box>
+
+      {/* 周条日期选择器 */}
+      <Box
+        sx={{
+          display: "flex",
+          gap: 1,
+          px: 2,
+          py: 1,
+          alignItems: "center",
+          overflowX: "auto",
+        }}
+      >
+        {daysOfWeek.map((d) => {
+          const isToday = new Date().toDateString() === d.toDateString();
+          const isSelected = selectedDate.toDateString() === d.toDateString();
+          return (
+            <Button
+              key={d.toISOString()}
+              variant={isSelected ? "contained" : "text"}
+              color={isToday ? "secondary" : "primary"}
+              onClick={() => setSelectedDate(new Date(d))}
+              sx={{ minWidth: 64, borderRadius: 2 }}
+            >
+              {`${d.getMonth() + 1}/${d.getDate()}`}
+            </Button>
+          );
+        })}
       </Box>
 
       <Stack spacing={2} sx={{ p: 2 }}>
@@ -308,10 +366,7 @@ const PlanPage: React.FC = () => {
                   borderRadius: 8,
                   px: 3,
                   boxShadow: 2,
-                  "&:hover": {
-                    transform: "scale(1.05)",
-                    boxShadow: 4,
-                  },
+                  "&:hover": { transform: "scale(1.05)", boxShadow: 4 },
                   transition: "all 0.2s",
                 }}
               >
@@ -329,7 +384,15 @@ const PlanPage: React.FC = () => {
           title="添加新任务"
         />
 
-        {/* responsive layout: left column (timeblocks) and right column (tasks) */}
+        {/* 创建时间块对话框 */}
+        <NewTimeBlockDialog
+          open={newBlockOpen}
+          onClose={() => setNewBlockOpen(false)}
+          onSave={handleCreateTimeBlock}
+          initialDate={selectedDate}
+        />
+
+        {/* 左列：时间块；右列：任务 */}
         <Box
           sx={{
             display: "flex",
@@ -344,11 +407,7 @@ const PlanPage: React.FC = () => {
             </Typography>
             <Paper
               elevation={2}
-              sx={{
-                p: 1,
-                borderRadius: 2,
-                overflow: "hidden",
-              }}
+              sx={{ p: 1, borderRadius: 2, overflow: "hidden" }}
             >
               <List sx={{ p: 0 }}>
                 {timeBlocks.length > 0 ? (
@@ -365,9 +424,6 @@ const PlanPage: React.FC = () => {
                           p: 1.5,
                           borderRadius: 1,
                           mb: 0.5,
-                          "&:hover": {
-                            bgcolor: "action.hover",
-                          },
                           transition: "all 0.2s",
                         }}
                       >
@@ -406,7 +462,7 @@ const PlanPage: React.FC = () => {
 
           <Box sx={{ flex: 1 }}>
             <Typography variant="h6" sx={{ mb: 1 }}>
-              任务
+              任务（左滑开始，右滑完成）
             </Typography>
 
             <Box
@@ -423,71 +479,11 @@ const PlanPage: React.FC = () => {
                     style={{ transitionDelay: `${index * 50}ms` }}
                     key={t._id}
                   >
-                    <Paper
-                      elevation={1}
-                      sx={{
-                        p: 2,
-                        borderRadius: 2,
-                        transition: "all 0.3s",
-                        "&:hover": {
-                          transform: "translateY(-4px)",
-                          boxShadow: 3,
-                        },
-                        borderLeft: `4px solid ${t.category ? categoryColors[t.category] : "#9e9e9e"}`,
-                      }}
-                    >
-                      <Stack
-                        direction="row"
-                        justifyContent="space-between"
-                        alignItems="center"
-                      >
-                        <Box>
-                          <Typography
-                            variant="subtitle1"
-                            sx={{ fontWeight: 500 }}
-                          >
-                            {t.title}
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            {t.estimatedTime} 分钟
-                            {t.notes && (
-                              <Tooltip
-                                title={t.notes}
-                                arrow
-                                placement="bottom-start"
-                              >
-                                <Box
-                                  component="span"
-                                  sx={{
-                                    ml: 1,
-                                    cursor: "help",
-                                    textDecoration: "underline dotted",
-                                  }}
-                                >
-                                  ...
-                                </Box>
-                              </Tooltip>
-                            )}
-                          </Typography>
-                        </Box>
-                        <Box>
-                          {t.status === "completed" ? (
-                            <Chip
-                              label="已完成"
-                              color="success"
-                              size="small"
-                              sx={{ fontWeight: 500 }}
-                            />
-                          ) : (
-                            <Chip
-                              label="未完成"
-                              size="small"
-                              sx={{ fontWeight: 500 }}
-                            />
-                          )}
-                        </Box>
-                      </Stack>
-                    </Paper>
+                    <TaskCard
+                      task={t}
+                      onStart={startTask}
+                      onComplete={completeTask}
+                    />
                   </Zoom>
                 ))
               ) : (
@@ -496,6 +492,52 @@ const PlanPage: React.FC = () => {
                     暂无任务，点击"添加任务"按钮创建新任务
                   </Typography>
                 </Box>
+              )}
+            </Box>
+
+            {/* 完成时间轴（真实数据） */}
+            <Box sx={{ mt: 3 }}>
+              <Divider sx={{ mb: 1 }} />
+              <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                已完成
+              </Typography>
+              {Object.keys(completedTimeline).length === 0 ? (
+                <Typography variant="body2" color="text.secondary">
+                  暂无已完成任务
+                </Typography>
+              ) : (
+                Object.entries(completedTimeline).map(([date, items]) => (
+                  <Box key={date} sx={{ mb: 2 }}>
+                    <Typography variant="caption" color="text.secondary">
+                      {date}
+                    </Typography>
+                    <List dense>
+                      {items.map((item) => (
+                        <ListItem key={item._id} sx={{ py: 0.5 }}>
+                          <ListItemText
+                            primary={
+                              <Typography
+                                variant="body2"
+                                sx={{ fontWeight: 500 }}
+                              >
+                                {item.title || "未定义"}
+                              </Typography>
+                            }
+                            secondary={
+                              <Typography
+                                variant="caption"
+                                color="text.secondary"
+                              >
+                                用时 {item.actualTime ?? item.estimatedTime}{" "}
+                                分钟
+                              </Typography>
+                            }
+                          />
+                        </ListItem>
+                      ))}
+                    </List>
+                  </Box>
+                ))
               )}
             </Box>
           </Box>

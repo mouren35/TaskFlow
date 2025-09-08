@@ -20,7 +20,6 @@ import { Task } from "../../models/task";
 import { CalendarToday } from "@mui/icons-material";
 import DatePicker from "./DatePicker";
 
-
 // 滑动动画效果
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
@@ -100,11 +99,7 @@ const AddTaskDialog: React.FC<AddTaskDialogProps> = ({
 
   // 保存任务
   const handleSave = () => {
-    if (!taskTitle.trim()) {
-      return; // 不允许空标题
-    }
-
-    const taskData: Omit<Task, '_id' | 'createdAt' | 'status' | 'completedAt'> =
+    const taskData: Omit<Task, "_id" | "createdAt" | "status" | "completedAt"> =
       {
         blockId: blockId || "",
         title: taskTitle.trim(),
@@ -168,7 +163,7 @@ const AddTaskDialog: React.FC<AddTaskDialogProps> = ({
         </FormControl>
 
         <Box sx={{ mb: 2 }}>
-          <Typography variant="subtitle2" gutterBottom>
+          <Typography variant="subtitle2" gutterBottom component="div">
             预计时间（分钟）
           </Typography>
           <TextField
@@ -188,15 +183,15 @@ const AddTaskDialog: React.FC<AddTaskDialogProps> = ({
         </Box>
 
         <Box sx={{ mb: 2 }}>
-          <Typography variant="subtitle2" gutterBottom>
+          <Typography variant="subtitle2" gutterBottom component="div">
             截止日期（可选）
           </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
             <TextField
               fullWidth
               variant="outlined"
               placeholder="选择日期"
-              value={dueDate ? dueDate.toLocaleDateString('zh-CN') : ''}
+              value={dueDate ? dueDate.toLocaleDateString("zh-CN") : ""}
               InputProps={{ readOnly: true }}
               sx={{ mr: 1 }}
             />
@@ -233,11 +228,7 @@ const AddTaskDialog: React.FC<AddTaskDialogProps> = ({
         <Button onClick={onClose} color="inherit">
           取消
         </Button>
-        <Button
-          onClick={handleSave}
-          variant="contained"
-          disabled={!taskTitle.trim()}
-        >
+        <Button onClick={handleSave} variant="contained">
           保存
         </Button>
       </DialogActions>

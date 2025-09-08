@@ -1,55 +1,28 @@
 // SchedulePage.tsx
-// 安排页面
+// 安排页面（使用现成的 react-calendar 组件，并接入真实数据）
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Box,
   Typography,
-  Card,
-  CardContent,
   Chip,
-  Grid,
-  IconButton,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   Button,
-  useTheme,
+  List,
+  ListItem,
+  ListItemText,
+  Divider,
 } from "@mui/material";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Add,
-  Category,
-  People,
-  Psychology,
-  HealthAndSafety,
-  Work,
-  Interests,
-  CheckCircle,
-} from "@mui/icons-material";
-import {
-  format,
-  startOfMonth,
-  endOfMonth,
-  startOfWeek,
-  endOfWeek,
-  addDays,
-  isSameMonth,
-  isSameDay,
-} from "date-fns";
-import { zhCN } from "date-fns/locale";
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
+import { useTasksViewModel } from "../../viewModels/useTasksViewModel";
+import type { Task } from "../../models/task";
+import type { TimeBlock } from "../../models/timeblock";
 
-interface Task {
-  id: string;
-  title: string;
-  category: string;
-  date: Date;
-  completed: boolean;
-}
-
-const categoryColors = {
+const categoryColors: Record<string, string> = {
   未分类: "#9e9e9e",
   人际: "#f44336",
   心智: "#2196f3",
@@ -59,235 +32,177 @@ const categoryColors = {
 };
 
 const SchedulePage: React.FC = () => {
-  const theme = useTheme();
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const { tasks, timeBlocks } = useTasksViewModel();
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [tasks] = useState<Task[]>([
-    {
-      id: "1",
-      title: "完成需求文档",
-      category: "工作",
-      date: new Date(2024, 0, 15),
-      completed: false,
-    },
-    {
-      id: "2",
-      title: "健身训练",
-      category: "健康",
-      date: new Date(2024, 0, 16),
-      completed: true,
-    },
-    {
-      id: "3",
-      title: "阅读技术文章",
-      category: "心智",
-      date: new Date(2024, 0, 17),
-      completed: false,
-    },
-  ]);
 
-  const monthStart = startOfMonth(currentDate);
-  const monthEnd = endOfMonth(currentDate);
-  const startDate = startOfWeek(monthStart, { weekStartsOn: 1 });
-  const endDate = endOfWeek(monthEnd, { weekStartsOn: 1 });
+  // blockId -> date 映射
+  const blockDateMap = useMemo<Record<string, Date>>(() => {
+    const map: Record<string, Date> = {};
+    (timeBlocks as TimeBlock[]).forEach((b) => {
+      if (b._id) map[b._id] = new Date(b.date);
+    });
+    return map;
+  }, [timeBlocks]);
 
-  const days = [];
-  let day = startDate;
-  while (day <= endDate) {
-    days.push(day);
-    day = addDays(day, 1);
-  }
-
-  const handlePrevMonth = () => {
-    setCurrentDate(
-      new Date(currentDate.getFullYear(), currentDate.getMonth() - 1)
-    );
+  // 计算任务的安排日期（优先 dueDate，其次时间块日期）
+  const taskDateGetter = (t: Task): Date | null => {
+    if (t.dueDate) return new Date(t.dueDate);
+    if (t.blockId && blockDateMap[t.blockId])
+      return new Date(blockDateMap[t.blockId]);
+    return null;
   };
 
-  const handleNextMonth = () => {
-    setCurrentDate(
-      new Date(currentDate.getFullYear(), currentDate.getMonth() + 1)
-    );
-  };
+  const tasksByDate = useMemo(() => {
+    const map: Record<string, Task[]> = {};
+    (tasks as Task[]).forEach((t) => {
+      const d = taskDateGetter(t);
+      if (!d) return;
+      d.setHours(0, 0, 0, 0);
+      const key = d.toISOString();
+      if (!map[key]) map[key] = [];
+      map[key].push(t);
+    });
+    return map;
+  }, [tasks, blockDateMap]);
 
   const getTasksForDate = (date: Date) => {
-    return tasks.filter((task) => isSameDay(task.date, date));
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    return tasksByDate[d.toISOString()] || [];
   };
 
-  const handleDateClick = (date: Date) => {
-    setSelectedDate(date);
+  const tileContent = ({ date, view }: { date: Date; view: string }) => {
+    if (view !== "month") return null;
+    const dayTasks = getTasksForDate(date);
+    if (dayTasks.length === 0) return null;
+    return (
+      <Box sx={{ mt: 0.5, display: "flex", flexDirection: "column", gap: 0.5 }}>
+        {dayTasks.slice(0, 2).map((task) => (
+          <Chip
+            key={task._id}
+            label={task.title || "未定义"}
+            size="small"
+            sx={{
+              backgroundColor:
+                categoryColors[(task.category as any) || "未分类"] || "#9e9e9e",
+              color: "#fff",
+              height: 18,
+              fontSize: "0.7rem",
+            }}
+          />
+        ))}
+        {dayTasks.length > 2 && (
+          <Typography variant="caption" color="text.secondary">
+            +{dayTasks.length - 2}
+          </Typography>
+        )}
+      </Box>
+    );
   };
 
-  const TaskChip = ({ task }: { task: Task }) => (
-    <Chip
-      label={task.title}
-      size="small"
-      sx={{
-        backgroundColor:
-          categoryColors[task.category as keyof typeof categoryColors],
-        color: "#fff",
-        height: 20,
-        fontSize: "0.75rem",
-        mb: 0.5,
-        opacity: task.completed ? 0.6 : 1,
-      }}
-    />
-  );
+  // 已完成时间轴：按 completedAt 分组
+  const completedTimeline = useMemo(() => {
+    const completed = (tasks as Task[]).filter(
+      (t) => t.status === "completed" && t.completedAt
+    );
+    completed.sort(
+      (a, b) =>
+        new Date(b.completedAt as any).getTime() -
+        new Date(a.completedAt as any).getTime()
+    );
+    const groups: Record<string, Task[]> = {};
+    completed.forEach((t) => {
+      const key = new Date(t.completedAt as any).toLocaleDateString();
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(t);
+    });
+    return groups;
+  }, [tasks]);
 
   return (
     <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
-      {/* 月份导航 */}
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          p: 2,
-          background: "#fff",
-          borderBottom: "1px solid #eee",
-        }}
-      >
-        <IconButton onClick={handlePrevMonth}>
-          <ChevronLeft />
-        </IconButton>
-        <Typography variant="h6">
-          {format(currentDate, "yyyy年M月", { locale: zhCN })}
-        </Typography>
-        <IconButton onClick={handleNextMonth}>
-          <ChevronRight />
-        </IconButton>
+      <Box sx={{ p: 2, borderBottom: "1px solid #eee" }}>
+        <Typography variant="h6">安排</Typography>
+      </Box>
+      <Box sx={{ p: 2, flex: 1, overflow: "auto" }}>
+        <Calendar
+          onClickDay={(value) => setSelectedDate(value as Date)}
+          tileContent={tileContent as any}
+          calendarType="US"
+          locale="zh-CN"
+        />
+
+        {/* 已完成时间轴 */}
+        <Box sx={{ mt: 3 }}>
+          <Divider sx={{ mb: 1 }} />
+          <Typography variant="subtitle2" sx={{ mb: 1 }}>
+            已完成
+          </Typography>
+          {Object.keys(completedTimeline).length === 0 ? (
+            <Typography variant="body2" color="text.secondary">
+              暂无已完成任务
+            </Typography>
+          ) : (
+            Object.entries(completedTimeline).map(([date, items]) => (
+              <Box key={date} sx={{ mb: 2 }}>
+                <Typography variant="caption" color="text.secondary">
+                  {date}
+                </Typography>
+                <List dense>
+                  {items.map((item) => (
+                    <ListItem key={item._id} sx={{ py: 0.5 }}>
+                      <ListItemText
+                        primary={
+                          <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                            {item.title || "未定义"}
+                          </Typography>
+                        }
+                        secondary={
+                          <Typography variant="caption" color="text.secondary">
+                            用时 {item.actualTime ?? item.estimatedTime} 分钟
+                          </Typography>
+                        }
+                      />
+                    </ListItem>
+                  ))}
+                </List>
+              </Box>
+            ))
+          )}
+        </Box>
       </Box>
 
-      {/* 星期标题 */}
-      <Grid container sx={{ background: "#f5f5f5", p: 1 }}>
-        {["一", "二", "三", "四", "五", "六", "日"].map((day) => (
-          <Grid key={day}>
-            <Typography align="center" variant="body2" color="text.secondary">
-              {day}
-            </Typography>
-          </Grid>
-        ))}
-      </Grid>
-
-      {/* 日历网格 */}
-      <Grid container spacing={0} sx={{ flex: 1 }}>
-        {days.map((day) => {
-          const dayTasks = getTasksForDate(day);
-          const isCurrentMonth = isSameMonth(day, currentDate);
-          const isToday = isSameDay(day, new Date());
-          const isSelected = selectedDate && isSameDay(day, selectedDate);
-
-          return (
-            <Grid
-              key={day.toISOString()}
-              sx={{
-                borderRight: "1px solid #eee",
-                borderBottom: "1px solid #eee",
-                minHeight: 80,
-                background: isSelected ? "#e3f2fd" : "#fff",
-                cursor: "pointer",
-                "&:hover": {
-                  background: "#f5f5f5",
-                },
-              }}
-              onClick={() => handleDateClick(day)}
-            >
-              <Box sx={{ p: 1, height: "100%" }}>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    fontWeight: isToday ? "bold" : "normal",
-                    color: !isCurrentMonth ? "#ccc" : "inherit",
-                    mb: 0.5,
-                  }}
-                >
-                  {format(day, "d")}
-                </Typography>
-                <Box sx={{ display: "flex", flexDirection: "column" }}>
-                  {dayTasks.slice(0, 2).map((task) => (
-                    <TaskChip key={task.id} task={task} />
-                  ))}
-                  {dayTasks.length > 2 && (
-                    <Typography variant="caption" color="text.secondary">
-                      +{dayTasks.length - 2}
-                    </Typography>
-                  )}
-                </Box>
-              </Box>
-            </Grid>
-          );
-        })}
-      </Grid>
-
-      {/* 日期详情对话框 */}
       <Dialog
         open={!!selectedDate}
         onClose={() => setSelectedDate(null)}
         maxWidth="xs"
         fullWidth
       >
-        <DialogTitle>
-          {selectedDate &&
-            format(selectedDate, "yyyy年M月d日", { locale: zhCN })}
-        </DialogTitle>
+        <DialogTitle>{selectedDate?.toLocaleDateString("zh-CN")}</DialogTitle>
         <DialogContent>
           {selectedDate && (
             <Box>
-              {getTasksForDate(selectedDate).length > 0 ? (
-                getTasksForDate(selectedDate).map((task) => (
-                  <Card
-                    key={task.id}
-                    sx={{
-                      mb: 1,
-                      boxShadow: "none",
-                      border: "1px solid #eee",
-                      opacity: task.completed ? 0.6 : 1,
-                    }}
-                  >
-                    <CardContent sx={{ p: 2 }}>
-                      <Box sx={{ display: "flex", alignItems: "center" }}>
-                        <Box
-                          sx={{
-                            width: 12,
-                            height: 12,
-                            borderRadius: "50%",
-                            background:
-                              categoryColors[
-                                task.category as keyof typeof categoryColors
-                              ],
-                            mr: 2,
-                          }}
-                        />
-                        <Box sx={{ flex: 1 }}>
-                          <Typography variant="body1">{task.title}</Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            {task.category}
-                          </Typography>
-                        </Box>
-                        {task.completed && (
-                          <CheckCircle sx={{ color: "#4caf50" }} />
-                        )}
-                      </Box>
-                    </CardContent>
-                  </Card>
-                ))
-              ) : (
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  align="center"
-                >
+              {getTasksForDate(selectedDate).length === 0 ? (
+                <Typography variant="body2" color="text.secondary">
                   今天没有安排任务
                 </Typography>
+              ) : (
+                getTasksForDate(selectedDate).map((t) => (
+                  <Box key={t._id} sx={{ py: 1 }}>
+                    <Typography variant="body1">
+                      {t.title || "未定义"}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {t.category}
+                    </Typography>
+                  </Box>
+                ))
               )}
             </Box>
           )}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setSelectedDate(null)}>关闭</Button>
-          <Button variant="contained" startIcon={<Add />}>
-            添加任务
-          </Button>
         </DialogActions>
       </Dialog>
     </Box>
