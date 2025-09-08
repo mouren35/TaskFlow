@@ -15,14 +15,15 @@ export const App = () => (
   <BrowserRouter>
     <Box
       sx={{
-        minHeight: "100vh",
+        height: "100vh",
+        width: "100%",
         display: "flex",
         flexDirection: "column",
-        maxWidth: 480,
-        margin: "0 auto",
         background: "#fafafa",
         position: "relative",
         boxSizing: "border-box",
+        margin: 0,
+        padding: 0,
       }}
     >
       <Box sx={{ flex: 1, pb: "env(safe-area-inset-bottom)" }}>

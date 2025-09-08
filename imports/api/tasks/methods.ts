@@ -49,4 +49,14 @@ Meteor.methods({
     };
     return TimeBlocks.insert(doc);
   },
+  "timeblocks.update"(blockId: string, updates: Partial<TimeBlock>) {
+    check(blockId, String);
+    check(updates, Object);
+    return TimeBlocks.update({ _id: blockId }, { $set: updates });
+  },
+
+  "timeblocks.remove"(blockId: string) {
+    check(blockId, String);
+    return TimeBlocks.remove({ _id: blockId });
+  },
 });

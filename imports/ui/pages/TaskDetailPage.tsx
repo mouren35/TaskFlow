@@ -18,6 +18,7 @@ import {
   DialogContent,
   DialogActions,
   useTheme,
+  Checkbox,
 } from "@mui/material";
 import {
   ArrowBack,
@@ -29,7 +30,7 @@ import {
   PriorityHigh,
   Description,
 } from "@mui/icons-material";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useHistory } from "react-router-dom";
 
 interface Task {
   id: string;
@@ -72,7 +73,7 @@ const priorityLabels = {
 const TaskDetailPage: React.FC = () => {
   const theme = useTheme();
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
+  const history = useHistory();
   
   const [task, setTask] = useState<Task>({
     id: id || "1",
@@ -153,7 +154,7 @@ const TaskDetailPage: React.FC = () => {
   };
 
   const handleDeleteTask = () => {
-    navigate("/");
+    history.push("/");
   };
 
   const completionRate = task.subtasks.length > 0 
@@ -173,7 +174,7 @@ const TaskDetailPage: React.FC = () => {
           gap: 2,
         }}
       >
-        <IconButton onClick={() => navigate("/")}>
+  <IconButton onClick={() => history.push("/")}> 
           <ArrowBack />
         </IconButton>
         <Typography variant="h6" sx={{ flex: 1 }}>
