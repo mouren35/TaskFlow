@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -13,16 +13,20 @@ import {
   Box,
   Typography,
   Slide,
-} from '@mui/material';
-import { TransitionProps } from '@mui/material/transitions';
-import { Task } from '../../models/task';
+  IconButton,
+} from "@mui/material";
+import { TransitionProps } from "@mui/material/transitions";
+import { Task } from "../../models/task";
+import { CalendarToday } from "@mui/icons-material";
+import DatePicker from "./DatePicker";
+
 
 // 滑动动画效果
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
     children: React.ReactElement;
   },
-  ref: React.Ref<unknown>,
+  ref: React.Ref<unknown>
 ) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
@@ -30,11 +34,11 @@ const Transition = React.forwardRef(function Transition(
 // 分类颜色映射
 const categoryColors = {
   social: "#f44336", // 人际关系 - 红色
-  mind: "#2196f3",  // 心智 - 蓝色
+  mind: "#2196f3", // 心智 - 蓝色
   health: "#4caf50", // 健康 - 绿色
-  work: "#9c27b0",   // 工作 - 紫色
-  hobby: "#ff9800",  // 兴趣爱好 - 橙色
-  uncategorized: "#9e9e9e" // 未分类 - 灰色
+  work: "#9c27b0", // 工作 - 紫色
+  hobby: "#ff9800", // 兴趣爱好 - 橙色
+  uncategorized: "#9e9e9e", // 未分类 - 灰色
 };
 
 // 分类标签映射
@@ -44,13 +48,15 @@ const categoryLabels = {
   health: "健康",
   work: "工作",
   hobby: "兴趣",
-  uncategorized: "未分类"
+  uncategorized: "未分类",
 };
 
 interface AddTaskDialogProps {
   open: boolean;
   onClose: () => void;
-  onSave: (task: Omit<Task, '_id' | 'createdAt' | 'status' | 'completedAt'>) => void;
+  onSave: (
+    task: Omit<Task, "_id" | "createdAt" | "status" | "completedAt">
+  ) => void;
   blockId?: string;
   initialTask?: Partial<Task>;
   title?: string;
@@ -62,28 +68,32 @@ const AddTaskDialog: React.FC<AddTaskDialogProps> = ({
   onSave,
   blockId,
   initialTask,
-  title = '添加任务'
+  title = "添加任务",
 }) => {
   // 表单状态
-  const [taskTitle, setTaskTitle] = useState('');
-  const [category, setCategory] = useState<Task['category']>('uncategorized');
+  const [taskTitle, setTaskTitle] = useState("");
+  const [category, setCategory] = useState<Task["category"]>("uncategorized");
   const [estimatedTime, setEstimatedTime] = useState(25); // 默认25分钟
-  const [notes, setNotes] = useState('');
+  const [notes, setNotes] = useState("");
+  const [dueDate, setDueDate] = useState<Date | null>(null);
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
 
   // 当对话框打开或初始任务变化时，重置表单
   useEffect(() => {
     if (open) {
       if (initialTask) {
-        setTaskTitle(initialTask.title || '');
-        setCategory(initialTask.category || 'uncategorized');
+        setTaskTitle(initialTask.title || "");
+        setCategory(initialTask.category || "uncategorized");
         setEstimatedTime(initialTask.estimatedTime || 25);
-        setNotes(initialTask.notes || '');
+        setNotes(initialTask.notes || "");
+        setDueDate(initialTask.dueDate ? new Date(initialTask.dueDate) : null);
       } else {
         // 新任务的默认值
-        setTaskTitle('');
-        setCategory('uncategorized');
+        setTaskTitle("");
+        setCategory("uncategorized");
         setEstimatedTime(25);
-        setNotes('');
+        setNotes("");
+        setDueDate(null);
       }
     }
   }, [open, initialTask]);
@@ -94,28 +104,30 @@ const AddTaskDialog: React.FC<AddTaskDialogProps> = ({
       return; // 不允许空标题
     }
 
-    const taskData: Omit<Task, '_id' | 'createdAt' | 'status' | 'completedAt'> = {
-      blockId: blockId || '',
-      title: taskTitle.trim(),
-      category,
-      estimatedTime,
-      notes: notes.trim() || undefined,
-    };
+    const taskData: Omit<Task, '_id' | 'createdAt' | 'status' | 'completedAt'> =
+      {
+        blockId: blockId || "",
+        title: taskTitle.trim(),
+        category,
+        estimatedTime,
+        notes: notes.trim() || undefined,
+        dueDate: dueDate ? dueDate.toISOString() : undefined,
+      };
 
     onSave(taskData);
     onClose();
   };
 
   return (
-    <Dialog 
-      open={open} 
+    <Dialog
+      open={open}
       onClose={onClose}
       TransitionComponent={Transition}
-      maxWidth="sm" 
+      maxWidth="sm"
       fullWidth
     >
       <DialogTitle sx={{ pb: 1 }}>{title}</DialogTitle>
-      
+
       <DialogContent sx={{ pb: 2 }}>
         <TextField
           autoFocus
@@ -127,25 +139,26 @@ const AddTaskDialog: React.FC<AddTaskDialogProps> = ({
           onChange={(e) => setTaskTitle(e.target.value)}
           sx={{ mb: 2 }}
         />
-        
+
         <FormControl fullWidth sx={{ mb: 2 }}>
           <InputLabel>分类</InputLabel>
           <Select
             value={category}
-            onChange={(e) => setCategory(e.target.value as Task['category'])}
+            onChange={(e) => setCategory(e.target.value as Task["category"])}
             label="分类"
           >
             {Object.entries(categoryLabels).map(([value, label]) => (
               <MenuItem key={value} value={value}>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <Box 
-                    sx={{ 
-                      width: 12, 
-                      height: 12, 
-                      borderRadius: '50%', 
-                      bgcolor: categoryColors[value as keyof typeof categoryColors],
-                      mr: 1 
-                    }} 
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <Box
+                    sx={{
+                      width: 12,
+                      height: 12,
+                      borderRadius: "50%",
+                      bgcolor:
+                        categoryColors[value as keyof typeof categoryColors],
+                      mr: 1,
+                    }}
                   />
                   {label}
                 </Box>
@@ -153,7 +166,7 @@ const AddTaskDialog: React.FC<AddTaskDialogProps> = ({
             ))}
           </Select>
         </FormControl>
-        
+
         <Box sx={{ mb: 2 }}>
           <Typography variant="subtitle2" gutterBottom>
             预计时间（分钟）
@@ -173,7 +186,26 @@ const AddTaskDialog: React.FC<AddTaskDialogProps> = ({
             helperText="请输入1-180之间的分钟数"
           />
         </Box>
-        
+
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="subtitle2" gutterBottom>
+            截止日期（可选）
+          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <TextField
+              fullWidth
+              variant="outlined"
+              placeholder="选择日期"
+              value={dueDate ? dueDate.toLocaleDateString('zh-CN') : ''}
+              InputProps={{ readOnly: true }}
+              sx={{ mr: 1 }}
+            />
+            <IconButton color="primary" onClick={() => setDatePickerOpen(true)}>
+              <CalendarToday />
+            </IconButton>
+          </Box>
+        </Box>
+
         <TextField
           margin="dense"
           label="备注（可选）"
@@ -184,14 +216,25 @@ const AddTaskDialog: React.FC<AddTaskDialogProps> = ({
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
         />
+
+        {/* 日期选择器 */}
+        <DatePicker
+          open={datePickerOpen}
+          onClose={() => setDatePickerOpen(false)}
+          onSelectDate={(date) => {
+            setDueDate(date);
+            setDatePickerOpen(false);
+          }}
+          initialDate={dueDate || new Date()}
+        />
       </DialogContent>
-      
+
       <DialogActions sx={{ px: 3, pb: 2 }}>
         <Button onClick={onClose} color="inherit">
           取消
         </Button>
-        <Button 
-          onClick={handleSave} 
+        <Button
+          onClick={handleSave}
           variant="contained"
           disabled={!taskTitle.trim()}
         >

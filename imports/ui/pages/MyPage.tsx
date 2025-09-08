@@ -25,6 +25,8 @@ import {
   useTheme,
   Paper,
   Chip,
+  IconButton,
+  Tooltip,
 } from "@mui/material";
 import {
   Brightness4,
@@ -38,6 +40,7 @@ import {
   Description,
   PrivacyTip,
 } from "@mui/icons-material";
+import { useThemeContext } from "../theme/ThemeContext";
 
 interface UserStats {
   completedTasks: number;
@@ -57,6 +60,8 @@ interface Settings {
 
 const MyPage: React.FC = () => {
   const theme = useTheme();
+  const { themeMode, setThemeMode, toggleTheme } = useThemeContext();
+  
   const [userStats] = useState<UserStats>({
     completedTasks: 156,
     totalHours: 89.5,
@@ -64,7 +69,7 @@ const MyPage: React.FC = () => {
   });
 
   const [settings, setSettings] = useState<Settings>({
-    theme: "system",
+    theme: themeMode,
     soundEnabled: true,
     defaultCategory: "未分类",
     defaultDuration: 25,
@@ -95,6 +100,7 @@ const MyPage: React.FC = () => {
 
   const handleThemeChange = (theme: "light" | "dark" | "system") => {
     handleSettingChange("theme", theme);
+    setThemeMode(theme);
     setThemeDialogOpen(false);
   };
 
@@ -200,8 +206,27 @@ const MyPage: React.FC = () => {
           color: "#fff",
           p: 3,
           borderRadius: 0,
+          position: "relative",
         }}
       >
+        {/* 快速切换主题按钮 */}
+        <Tooltip title="切换主题模式">
+          <IconButton
+            onClick={toggleTheme}
+            sx={{
+              position: "absolute",
+              top: 10,
+              right: 10,
+              color: "white",
+              backgroundColor: "rgba(255,255,255,0.2)",
+              "&:hover": {
+                backgroundColor: "rgba(255,255,255,0.3)",
+              },
+            }}
+          >
+            {themeMode === "light" ? <Brightness4 /> : themeMode === "dark" ? <Brightness7 /> : <Settings />}
+          </IconButton>
+        </Tooltip>
         <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
           <Avatar
             sx={{

@@ -8,6 +8,7 @@ export interface Task {
   category: 'social' | 'mind' | 'health' | 'work' | 'hobby' | 'uncategorized';
   estimatedTime: number; // 预计分钟
   actualTime?: number;
+  dueDate?: string;      // 截止日期
   repeat?: {
     type: 'daily' | 'weekly' | 'monthly' | 'none';
     rule: any; // 具体重复规则

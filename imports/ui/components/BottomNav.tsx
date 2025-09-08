@@ -33,8 +33,6 @@ const BottomNav: React.FC = () => {
         zIndex: 100,
         borderTop: "1px solid #eee",
         background: "#fff",
-        width: "100vw",
-        margin: "0 auto",
         paddingBottom: "env(safe-area-inset-bottom)",
       }}
       square
@@ -44,8 +42,8 @@ const BottomNav: React.FC = () => {
         onChange={(_, value) => history.push(value)}
         showLabels
         sx={{
-          width: "100vw",
-          margin: "0 auto",
+          width: "100%",
+          margin: 0,
           display: "flex",
           position: "relative",
         }}
