@@ -27,13 +27,7 @@ import {
   Menu,
   useTheme,
 } from "@mui/material";
-import {
-  Add,
-  MoreVert,
-  Edit,
-  Delete,
-  AccessTime,
-} from "@mui/icons-material";
+import { Add, MoreVert, Edit, Delete, AccessTime } from "@mui/icons-material";
 
 interface Task {
   id: string;
@@ -107,7 +101,7 @@ const PendingPage: React.FC = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
-  const pendingTasks = tasks.filter(task => !task.completed);
+  const pendingTasks = tasks.filter((task) => !task.completed);
 
   const handleAddTask = () => {
     setEditingTask(null);
@@ -131,11 +125,13 @@ const PendingPage: React.FC = () => {
 
   const handleSaveTask = () => {
     if (editingTask) {
-      setTasks(tasks.map(t => 
-        t.id === editingTask.id 
-          ? { ...t, title, category, priority, dueDate, description }
-          : t
-      ));
+      setTasks(
+        tasks.map((t) =>
+          t.id === editingTask.id
+            ? { ...t, title, category, priority, dueDate, description }
+            : t
+        )
+      );
     } else {
       const newTask: Task = {
         id: Date.now().toString(),
@@ -152,13 +148,15 @@ const PendingPage: React.FC = () => {
   };
 
   const handleToggleComplete = (id: string) => {
-    setTasks(tasks.map(task => 
-      task.id === id ? { ...task, completed: !task.completed } : task
-    ));
+    setTasks(
+      tasks.map((task) =>
+        task.id === id ? { ...task, completed: !task.completed } : task
+      )
+    );
   };
 
   const handleDeleteTask = (id: string) => {
-    setTasks(tasks.filter(task => task.id !== id));
+    setTasks(tasks.filter((task) => task.id !== id));
     setAnchorEl(null);
   };
 
@@ -190,7 +188,10 @@ const PendingPage: React.FC = () => {
           {pendingTasks.map((task) => (
             <ListItem
               key={task.id}
-              sx={{ cursor: 'pointer', '&:hover': { backgroundColor: '#f5f5f5' } }}
+              sx={{
+                cursor: "pointer",
+                "&:hover": { backgroundColor: "#f5f5f5" },
+              }}
             >
               <ListItemIcon>
                 <Checkbox
@@ -204,12 +205,23 @@ const PendingPage: React.FC = () => {
               </ListItemIcon>
               <ListItemText
                 primary={
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                      mb: 0.5,
+                    }}
+                  >
                     <Typography
                       variant="body1"
                       sx={{
-                        textDecoration: task.completed ? "line-through" : "none",
-                        color: task.completed ? "text.secondary" : "text.primary",
+                        textDecoration: task.completed
+                          ? "line-through"
+                          : "none",
+                        color: task.completed
+                          ? "text.secondary"
+                          : "text.primary",
                       }}
                     >
                       {task.title}
@@ -218,7 +230,10 @@ const PendingPage: React.FC = () => {
                       label={task.category}
                       size="small"
                       sx={{
-                        backgroundColor: categoryColors[task.category as keyof typeof categoryColors],
+                        backgroundColor:
+                          categoryColors[
+                            task.category as keyof typeof categoryColors
+                          ],
                         color: "#fff",
                         height: 20,
                         fontSize: "0.75rem",
@@ -239,12 +254,21 @@ const PendingPage: React.FC = () => {
                 secondary={
                   <Box>
                     {task.description && (
-                      <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ mb: 0.5 }}
+                      >
                         {task.description}
                       </Typography>
                     )}
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                      <AccessTime fontSize="small" sx={{ color: "text.secondary" }} />
+                    <Box
+                      sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
+                    >
+                      <AccessTime
+                        fontSize="small"
+                        sx={{ color: "text.secondary" }}
+                      />
                       <Typography variant="caption" color="text.secondary">
                         截止：{task.dueDate}
                       </Typography>
@@ -298,10 +322,13 @@ const PendingPage: React.FC = () => {
       </Fab>
 
       {/* 编辑对话框 */}
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>
-          {editingTask ? "编辑任务" : "添加任务"}
-        </DialogTitle>
+      <Dialog
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>{editingTask ? "编辑任务" : "添加任务"}</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
@@ -330,7 +357,9 @@ const PendingPage: React.FC = () => {
             <InputLabel>优先级</InputLabel>
             <Select
               value={priority}
-              onChange={(e) => setPriority(e.target.value as "low" | "medium" | "high")}
+              onChange={(e) =>
+                setPriority(e.target.value as "low" | "medium" | "high")
+              }
             >
               <MenuItem value="low">低</MenuItem>
               <MenuItem value="medium">中</MenuItem>
@@ -375,21 +404,26 @@ const PendingPage: React.FC = () => {
         open={Boolean(anchorEl)}
         onClose={handleMenuClose}
       >
-        <MenuItem onClick={() => {
-          if (selectedTask) {
-            handleEditTask(selectedTask);
-          }
-          handleMenuClose();
-        }}>
+        <MenuItem
+          onClick={() => {
+            if (selectedTask) {
+              handleEditTask(selectedTask);
+            }
+            handleMenuClose();
+          }}
+        >
           <Edit sx={{ mr: 1 }} fontSize="small" />
           编辑
         </MenuItem>
-        <MenuItem onClick={() => {
-          if (selectedTask) {
-            handleDeleteTask(selectedTask.id);
-          }
-          handleMenuClose();
-        }} sx={{ color: "error.main" }}>
+        <MenuItem
+          onClick={() => {
+            if (selectedTask) {
+              handleDeleteTask(selectedTask.id);
+            }
+            handleMenuClose();
+          }}
+          sx={{ color: "error.main" }}
+        >
           <Delete sx={{ mr: 1 }} fontSize="small" />
           删除
         </MenuItem>

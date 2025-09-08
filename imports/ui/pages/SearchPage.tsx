@@ -97,7 +97,7 @@ const SearchPage: React.FC = () => {
         query: query.trim(),
         timestamp: new Date(),
       };
-      setSearchHistory(prev => [newHistory, ...prev.slice(0, 9)]);
+      setSearchHistory((prev) => [newHistory, ...prev.slice(0, 9)]);
     }
   };
 
@@ -112,7 +112,11 @@ const SearchPage: React.FC = () => {
   return (
     <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
       {/* 搜索栏 */}
-      <AppBar position="static" elevation={0} sx={{ background: "#fff", color: "#000" }}>
+      <AppBar
+        position="static"
+        elevation={0}
+        sx={{ background: "#fff", color: "#000" }}
+      >
         <Toolbar sx={{ px: 1 }}>
           <TextField
             placeholder="搜索任务、分类..."
@@ -158,24 +162,35 @@ const SearchPage: React.FC = () => {
               {searchResults.map((result) => (
                 <ListItem
                   key={result.id}
-                  sx={{ cursor: 'pointer', '&:hover': { backgroundColor: '#f5f5f5' } }}
+                  sx={{
+                    cursor: "pointer",
+                    "&:hover": { backgroundColor: "#f5f5f5" },
+                  }}
                 >
                   <ListItemIcon>
                     <Category
                       sx={{
-                        color: categoryColors[result.category as keyof typeof categoryColors],
+                        color:
+                          categoryColors[
+                            result.category as keyof typeof categoryColors
+                          ],
                       }}
                     />
                   </ListItemIcon>
                   <ListItemText
                     primary={result.title}
                     secondary={
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
                         <Chip
                           label={result.category}
                           size="small"
                           sx={{
-                            backgroundColor: categoryColors[result.category as keyof typeof categoryColors],
+                            backgroundColor:
+                              categoryColors[
+                                result.category as keyof typeof categoryColors
+                              ],
                             color: "#fff",
                             height: 20,
                             fontSize: "0.75rem",
@@ -209,7 +224,10 @@ const SearchPage: React.FC = () => {
                     setSearchQuery(history.query);
                     handleSearch(history.query);
                   }}
-                  sx={{ cursor: 'pointer', '&:hover': { backgroundColor: '#f5f5f5' } }}
+                  sx={{
+                    cursor: "pointer",
+                    "&:hover": { backgroundColor: "#f5f5f5" },
+                  }}
                 >
                   <ListItemIcon>
                     <History sx={{ color: "#666" }} />

@@ -74,7 +74,7 @@ const TaskDetailPage: React.FC = () => {
   const theme = useTheme();
   const { id } = useParams<{ id: string }>();
   const history = useHistory();
-  
+
   const [task, setTask] = useState<Task>({
     id: id || "1",
     title: "完成需求文档",
@@ -82,7 +82,8 @@ const TaskDetailPage: React.FC = () => {
     completed: false,
     dueDate: "2024-01-20",
     priority: "high" as const,
-    description: "需要完成本周的项目文档，包含功能说明和技术细节。重点关注用户体验设计和功能流程图。",
+    description:
+      "需要完成本周的项目文档，包含功能说明和技术细节。重点关注用户体验设计和功能流程图。",
     subtasks: [
       { id: "1", title: "收集用户反馈", completed: true },
       { id: "2", title: "整理功能需求", completed: true },
@@ -99,8 +100,10 @@ const TaskDetailPage: React.FC = () => {
   const handleToggleSubtask = (subtaskId: string) => {
     setTask({
       ...task,
-      subtasks: task.subtasks.map(subtask =>
-        subtask.id === subtaskId ? { ...subtask, completed: !subtask.completed } : subtask
+      subtasks: task.subtasks.map((subtask) =>
+        subtask.id === subtaskId
+          ? { ...subtask, completed: !subtask.completed }
+          : subtask
       ),
     });
   };
@@ -124,12 +127,12 @@ const TaskDetailPage: React.FC = () => {
   const handleDeleteSubtask = (subtaskId: string) => {
     setTask({
       ...task,
-      subtasks: task.subtasks.filter(subtask => subtask.id !== subtaskId),
+      subtasks: task.subtasks.filter((subtask) => subtask.id !== subtaskId),
     });
   };
 
   const handleEditSubtask = (subtaskId: string) => {
-    const subtask = task.subtasks.find(s => s.id === subtaskId);
+    const subtask = task.subtasks.find((s) => s.id === subtaskId);
     if (subtask) {
       setEditingSubtask(subtaskId);
       setSubtaskText(subtask.title);
@@ -140,8 +143,10 @@ const TaskDetailPage: React.FC = () => {
     if (subtaskText.trim()) {
       setTask({
         ...task,
-        subtasks: task.subtasks.map(subtask =>
-          subtask.id === subtaskId ? { ...subtask, title: subtaskText } : subtask
+        subtasks: task.subtasks.map((subtask) =>
+          subtask.id === subtaskId
+            ? { ...subtask, title: subtaskText }
+            : subtask
         ),
       });
     }
@@ -157,9 +162,14 @@ const TaskDetailPage: React.FC = () => {
     history.push("/");
   };
 
-  const completionRate = task.subtasks.length > 0 
-    ? Math.round((task.subtasks.filter(s => s.completed).length / task.subtasks.length) * 100)
-    : 0;
+  const completionRate =
+    task.subtasks.length > 0
+      ? Math.round(
+          (task.subtasks.filter((s) => s.completed).length /
+            task.subtasks.length) *
+            100
+        )
+      : 0;
 
   return (
     <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
@@ -174,7 +184,7 @@ const TaskDetailPage: React.FC = () => {
           gap: 2,
         }}
       >
-  <IconButton onClick={() => history.push("/")}> 
+        <IconButton onClick={() => history.push("/")}>
           <ArrowBack />
         </IconButton>
         <Typography variant="h6" sx={{ flex: 1 }}>
@@ -208,7 +218,8 @@ const TaskDetailPage: React.FC = () => {
               icon={<Category />}
               label={task.category}
               sx={{
-                backgroundColor: categoryColors[task.category as keyof typeof categoryColors],
+                backgroundColor:
+                  categoryColors[task.category as keyof typeof categoryColors],
                 color: "#fff",
               }}
             />
@@ -230,7 +241,10 @@ const TaskDetailPage: React.FC = () => {
           </Box>
 
           <Box sx={{ mb: 3 }}>
-            <Typography variant="h6" sx={{ mb: 1, display: "flex", alignItems: "center", gap: 1 }}>
+            <Typography
+              variant="h6"
+              sx={{ mb: 1, display: "flex", alignItems: "center", gap: 1 }}
+            >
               <Description fontSize="small" />
               任务描述
             </Typography>
@@ -243,9 +257,10 @@ const TaskDetailPage: React.FC = () => {
         {/* 子任务列表 */}
         <Box>
           <Typography variant="h6" sx={{ mb: 2 }}>
-            子任务 ({task.subtasks.filter(s => s.completed).length}/{task.subtasks.length})
+            子任务 ({task.subtasks.filter((s) => s.completed).length}/
+            {task.subtasks.length})
           </Typography>
-          
+
           {task.subtasks.length > 0 && (
             <Box sx={{ mb: 2 }}>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
@@ -276,7 +291,10 @@ const TaskDetailPage: React.FC = () => {
             {task.subtasks.map((subtask) => (
               <ListItem
                 key={subtask.id}
-                sx={{ cursor: 'pointer', '&:hover': { backgroundColor: '#f5f5f5' } }}
+                sx={{
+                  cursor: "pointer",
+                  "&:hover": { backgroundColor: "#f5f5f5" },
+                }}
               >
                 <ListItemIcon>
                   <Checkbox
@@ -293,7 +311,9 @@ const TaskDetailPage: React.FC = () => {
                     value={subtaskText}
                     onChange={(e) => setSubtaskText(e.target.value)}
                     onBlur={() => handleSaveSubtask(subtask.id)}
-                    onKeyPress={(e) => e.key === "Enter" && handleSaveSubtask(subtask.id)}
+                    onKeyPress={(e) =>
+                      e.key === "Enter" && handleSaveSubtask(subtask.id)
+                    }
                     size="small"
                     autoFocus
                     fullWidth
@@ -302,8 +322,12 @@ const TaskDetailPage: React.FC = () => {
                   <ListItemText
                     primary={subtask.title}
                     sx={{
-                      textDecoration: subtask.completed ? "line-through" : "none",
-                      color: subtask.completed ? "text.secondary" : "text.primary",
+                      textDecoration: subtask.completed
+                        ? "line-through"
+                        : "none",
+                      color: subtask.completed
+                        ? "text.secondary"
+                        : "text.primary",
                     }}
                     onClick={() => handleEditSubtask(subtask.id)}
                   />
@@ -330,7 +354,12 @@ const TaskDetailPage: React.FC = () => {
       </Box>
 
       {/* 添加子任务对话框 */}
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth>
+      <Dialog
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+        maxWidth="sm"
+        fullWidth
+      >
         <DialogTitle>添加子任务</DialogTitle>
         <DialogContent>
           <TextField

@@ -15,11 +15,11 @@
     "noImplicitAny": true,
     "strictNullChecks": true,
 
-  /* Additional Checks */
-  "noUnusedLocals": false,
-  "noUnusedParameters": false,
-  /* Skip type checking of declaration files to avoid third-party lib errors */
-  "skipLibCheck": true,
+    /* Additional Checks */
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    /* Skip type checking of declaration files to avoid third-party lib errors */
+    "skipLibCheck": true,
     "noImplicitReturns": false,
     "noFallthroughCasesInSwitch": false,
 
@@ -40,8 +40,5 @@
     "esModuleInterop": true,
     "preserveSymlinks": true
   },
-  "exclude": [
-    "./.meteor/**",
-    "./packages/**"
-  ]
+  "exclude": ["./.meteor/**", "./packages/**"]
 }
