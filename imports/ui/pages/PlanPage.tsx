@@ -30,6 +30,7 @@ import {
 import AddTaskDialog from "../components/AddTaskDialog";
 import NewTimeBlockDialog from "../components/NewTimeBlockDialog";
 import { Task } from "../../models/task";
+import TaskCard from "../components/TaskCard";
 import { useHistory } from "react-router-dom";
 import { useSwipeable } from "react-swipeable";
 
@@ -82,81 +83,7 @@ const categoryColors: Record<string, string> = {
   uncategorized: "#9e9e9e",
 };
 
-// 单个任务卡片（将 useSwipeable 放在子组件中，保证 Hooks 顺序稳定）
-type TaskCardProps = {
-  task: Task;
-  onStart: (id: string) => void;
-  onComplete: (id: string, minutes: number) => void;
-};
-
-const TaskCard = React.forwardRef<HTMLDivElement, TaskCardProps>(
-  ({ task, onStart, onComplete }, ref) => {
-    const swipeHandlers = useSwipeable({
-      onSwipedLeft: () => onStart(task._id as string),
-      onSwipedRight: () => onComplete(task._id as string, task.estimatedTime || 0),
-      delta: 30,
-      preventScrollOnSwipe: true,
-      trackTouch: true,
-    });
-    // swipeHandlers may expose a ref callback; combine it with the forwarded ref
-    const setRefs = (node: HTMLDivElement | null) => {
-      // call swipeHandlers.ref if it exists
-      // @ts-ignore - swipeHandlers may have a ref property at runtime
-      if (swipeHandlers && typeof swipeHandlers.ref === 'function') swipeHandlers.ref(node);
-      if (!ref) return;
-      if (typeof ref === 'function') ref(node);
-      else (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
-    };
-
-    return (
-      <Paper
-        {...swipeHandlers}
-        elevation={1}
-        sx={{
-          p: 2,
-          borderRadius: 2,
-          transition: 'all 0.2s',
-          borderLeft: `4px solid ${task.category ? categoryColors[task.category] : '#9e9e9e'}`,
-          '&:active': { transform: 'scale(0.99)' },
-        }}
-        ref={setRefs}
-      >
-        <Stack direction="row" justifyContent="space-between" alignItems="center">
-          <Box>
-            <Typography variant="subtitle1" sx={{ fontWeight: 500 }}>
-              {task.title || '未定义'}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {task.estimatedTime} 分钟
-              {task.notes && (
-                <Tooltip title={task.notes} arrow placement="bottom-start">
-                  <Box
-                    component="span"
-                    sx={{ ml: 1, cursor: 'help', textDecoration: 'underline dotted' }}
-                  >
-                    ...
-                  </Box>
-                </Tooltip>
-              )}
-            </Typography>
-          </Box>
-          <Chip
-            label={
-              task.status === 'completed'
-                ? '已完成'
-                : task.status === 'inProgress'
-                ? '进行中'
-                : '未完成'
-            }
-            size="small"
-            sx={{ fontWeight: 500 }}
-          />
-        </Stack>
-      </Paper>
-    );
-  }
-);
-TaskCard.displayName = 'TaskCard';
+// TaskCard component extracted to imports/ui/components/TaskCard.tsx
 
 const PlanPage: React.FC = () => {
   const history = useHistory();
