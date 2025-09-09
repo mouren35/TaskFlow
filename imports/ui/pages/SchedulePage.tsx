@@ -15,14 +15,14 @@ import {
   ListItem,
   ListItemText,
   Divider,
+  Paper,
+  useTheme,
 } from "@mui/material";
 // Use the React FullCalendar integration
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import '@fullcalendar/daygrid/main.css';
-import '@fullcalendar/timegrid/main.css';
 import { useTasksViewModel } from "../../viewModels/useTasksViewModel";
 import type { Task } from "../../models/task";
 import type { TimeBlock } from "../../models/timeblock";
@@ -162,61 +162,84 @@ const SchedulePage: React.FC = () => {
     );
   };
 
+  const theme = useTheme();
+
   return (
     <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
-      <Box sx={{ p: 2, borderBottom: "1px solid #eee" }}>
+      <Box sx={{ p: 2, borderBottom: `1px solid ${theme.palette.divider}` }}>
         <Typography variant="h6">安排</Typography>
       </Box>
-      <Box sx={{ p: 2, flex: 1, overflow: "auto" }}>
-        <FullCalendar
-          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-          initialView="dayGridMonth"
-          headerToolbar={{ left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' }}
-          events={events}
-          dateClick={handleDateClick}
-          eventClick={handleEventClick}
-          eventContent={renderEventContent}
-          ref={calendarRef as any}
-        />
 
-        {/* 已完成时间轴 */}
-        <Box sx={{ mt: 3 }}>
-          <Divider sx={{ mb: 1 }} />
+      <Box
+        sx={{
+          p: 2,
+          flex: 1,
+          overflow: "auto",
+          display: "grid",
+          gap: 2,
+          gridTemplateColumns: { xs: "1fr", md: "2fr 1fr" },
+          alignItems: "start",
+        }}
+      >
+        <Paper
+          elevation={1}
+          sx={{ p: 2, minHeight: { xs: 360, md: 520 }, display: "flex", flexDirection: "column" }}
+        >
+          <Box sx={{ flex: 1, overflow: "hidden" }}>
+            <FullCalendar
+              plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+              initialView="dayGridMonth"
+              headerToolbar={{ left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' }}
+              events={events}
+              dateClick={handleDateClick}
+              eventClick={handleEventClick}
+              eventContent={renderEventContent}
+              ref={calendarRef as any}
+            />
+          </Box>
+        </Paper>
+
+        <Paper elevation={0} sx={{ p: 2, minHeight: { xs: 160, md: 520 } }}>
           <Typography variant="subtitle2" sx={{ mb: 1 }}>
             已完成
           </Typography>
+
+          <Divider sx={{ mb: 1 }} />
+
           {Object.keys(completedTimeline).length === 0 ? (
             <Typography variant="body2" color="text.secondary">
               暂无已完成任务
             </Typography>
           ) : (
-            Object.entries(completedTimeline).map(([date, items]) => (
-              <Box key={date} sx={{ mb: 2 }}>
-                <Typography variant="caption" color="text.secondary">
-                  {date}
-                </Typography>
-                <List dense>
-                  {items.map((item) => (
-                    <ListItem key={item._id} sx={{ py: 0.5 }}>
-                      <ListItemText
-                        primary={
-                          <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                            {item.title || "未定义"}
-                          </Typography>
-                        }
-                        secondary={
-                          <Typography variant="caption" color="text.secondary">
-                            用时 {item.actualTime ?? item.estimatedTime} 分钟
-                          </Typography>
-                        }
-                      />
-                    </ListItem>
-                  ))}
-                </List>
-              </Box>
-            ))
+            <Box sx={{ maxHeight: 480, overflow: "auto", pr: 1 }}>
+              {Object.entries(completedTimeline).map(([date, items]) => (
+                <Box key={date} sx={{ mb: 2 }}>
+                  <Typography variant="caption" color="text.secondary">
+                    {date}
+                  </Typography>
+                  <List dense>
+                    {items.map((item) => (
+                      <ListItem key={item._id} sx={{ py: 0.5 }}>
+                        <ListItemText
+                          primary={
+                            <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                              {item.title || "未定义"}
+                            </Typography>
+                          }
+                          secondary={
+                            <Typography variant="caption" color="text.secondary">
+                              用时 {item.actualTime ?? item.estimatedTime} 分钟
+                            </Typography>
+                          }
+                        />
+                      </ListItem>
+                    ))}
+                  </List>
+                </Box>
+              ))}
+            </Box>
           )}
-        </Box>
+        </Paper>
       </Box>
 
       <Dialog
@@ -236,9 +259,7 @@ const SchedulePage: React.FC = () => {
               ) : (
                 getTasksForDate(selectedDate).map((t) => (
                   <Box key={t._id} sx={{ py: 1 }}>
-                    <Typography variant="body1">
-                      {t.title || "未定义"}
-                    </Typography>
+                    <Typography variant="body1">{t.title || "未定义"}</Typography>
                     <Typography variant="caption" color="text.secondary">
                       {t.category}
                     </Typography>

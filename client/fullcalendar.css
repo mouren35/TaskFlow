@@ -1,0 +1,17 @@
+/* FullCalendar official styles imported from node_modules.
+   This file centralizes the imports so bundlers that can serve
+   node_modules CSS will load the official FullCalendar styling.
+   If your build doesn't expose node_modules to the browser, copy
+   the CSS contents into this file instead. */
+
+@import url('/node_modules/@fullcalendar/core/main.css');
+@import url('/node_modules/@fullcalendar/daygrid/main.css');
+@import url('/node_modules/@fullcalendar/timegrid/main.css');
+
+/* Small overrides to harmonize with the app theme */
+.fc .fc-toolbar-title {
+  font-weight: 500;
+}
+.fc .fc-daygrid-event {
+  border: none;
+}

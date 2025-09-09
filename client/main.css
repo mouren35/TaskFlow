@@ -27,3 +27,28 @@ body {
   min-height: 100vh;
   background-color: #fafafa;
 }
+
+/* Try to load FullCalendar official styles from a local wrapper.
+  If the bundler exposes node_modules, that file will import the real CSS.
+  Otherwise keep the fallback styles below. */
+@import './fullcalendar.css';
+
+
+/* Minimal fallback styles for FullCalendar when CSS modules are not available */
+.fc {
+  font-family: Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+.fc .fc-toolbar-title {
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+.fc-daygrid-day-number {
+  font-size: 0.85rem;
+}
+.fc-event {
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #1976d2;
+  color: white;
+  font-size: 0.85rem;
+}

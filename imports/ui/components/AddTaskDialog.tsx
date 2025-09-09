@@ -13,14 +13,12 @@ import {
   Box,
   Typography,
   Slide,
-  IconButton,
   Checkbox,
   FormControlLabel,
 } from "@mui/material";
 import { TransitionProps } from "@mui/material/transitions";
 import { Task } from "../../models/task";
-import { CalendarToday } from "@mui/icons-material";
-import DatePicker from "./DatePicker";
+// using native date input instead of custom DatePicker for simplicity and accessibility
 
 // 滑动动画效果
 const Transition = React.forwardRef(function Transition(
@@ -63,6 +61,14 @@ interface AddTaskDialogProps {
   title?: string;
 }
 
+// format Date -> YYYY-MM-DD for input[type=date]
+function formatDate(d: Date) {
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+
 const AddTaskDialog: React.FC<AddTaskDialogProps> = ({
   open,
   onClose,
@@ -77,7 +83,6 @@ const AddTaskDialog: React.FC<AddTaskDialogProps> = ({
   const [estimatedTime, setEstimatedTime] = useState(25); // 默认25分钟
   const [notes, setNotes] = useState("");
   const [dueDate, setDueDate] = useState<Date | null>(null);
-  const [datePickerOpen, setDatePickerOpen] = useState(false);
   // PRD: repeat and habit fields
   const [repeatType, setRepeatType] = useState<"none" | "daily" | "weekly" | "monthly">("none");
   const [repeatRule, setRepeatRule] = useState<string>("");
@@ -222,19 +227,15 @@ const AddTaskDialog: React.FC<AddTaskDialogProps> = ({
           <Typography variant="subtitle2" gutterBottom component="div">
             截止日期（可选）
           </Typography>
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <TextField
-              fullWidth
-              variant="outlined"
-              placeholder="选择日期"
-              value={dueDate ? dueDate.toLocaleDateString("zh-CN") : ""}
-              InputProps={{ readOnly: true }}
-              sx={{ mr: 1 }}
-            />
-            <IconButton color="primary" onClick={() => setDatePickerOpen(true)}>
-              <CalendarToday />
-            </IconButton>
-          </Box>
+          {/* Native date input (YYYY-MM-DD) - simpler and responsive */}
+          <TextField
+            type="date"
+            fullWidth
+            variant="outlined"
+            value={dueDate ? formatDate(dueDate) : ""}
+            onChange={(e) => setDueDate(e.target.value ? new Date(e.target.value) : null)}
+            InputLabelProps={{ shrink: true }}
+          />
         </Box>
 
         <TextField
@@ -248,16 +249,7 @@ const AddTaskDialog: React.FC<AddTaskDialogProps> = ({
           onChange={(e) => setNotes(e.target.value)}
         />
 
-        {/* 日期选择器 */}
-        <DatePicker
-          open={datePickerOpen}
-          onClose={() => setDatePickerOpen(false)}
-          onSelectDate={(date) => {
-            setDueDate(date);
-            setDatePickerOpen(false);
-          }}
-          initialDate={dueDate || new Date()}
-        />
+  {/* removed custom DatePicker in favor of native MUI date input */}
       </DialogContent>
 
       <DialogActions sx={{ px: 3, pb: 2 }}>
