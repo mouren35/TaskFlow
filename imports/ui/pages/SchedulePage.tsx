@@ -16,8 +16,13 @@ import {
   ListItemText,
   Divider,
 } from "@mui/material";
-import Calendar from "react-calendar";
-import "react-calendar/dist/Calendar.css";
+// Use the React FullCalendar integration
+import FullCalendar from '@fullcalendar/react';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import interactionPlugin from '@fullcalendar/interaction';
+import '@fullcalendar/daygrid/main.css';
+import '@fullcalendar/timegrid/main.css';
 import { useTasksViewModel } from "../../viewmodels/useTasksViewModel";
 import type { Task } from "../../models/task";
 import type { TimeBlock } from "../../models/timeblock";
@@ -34,6 +39,7 @@ const categoryColors: Record<string, string> = {
 const SchedulePage: React.FC = () => {
   const { tasks, timeBlocks } = useTasksViewModel();
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const calendarRef = React.useRef<FullCalendar | null>(null);
 
   // blockId -> date 映射
   const blockDateMap = useMemo<Record<string, Date>>(() => {
@@ -118,6 +124,43 @@ const SchedulePage: React.FC = () => {
     });
     return groups;
   }, [tasks]);
+  // map tasks to FullCalendar events
+  const events = useMemo(() => {
+    return (tasks as Task[])
+      .map((t) => {
+        const d = taskDateGetter(t);
+        if (!d) return null;
+        const dateStr = d.toISOString().slice(0, 10);
+        return {
+          id: t._id,
+          title: t.title || '未定义',
+          start: dateStr,
+          allDay: true,
+          extendedProps: { task: t },
+        } as any;
+      })
+      .filter(Boolean) as any[];
+  }, [tasks, timeBlocks]);
+
+  const handleDateClick = (arg: any) => {
+    setSelectedDate(new Date(arg.dateStr));
+  };
+
+  const handleEventClick = (arg: any) => {
+    const d = arg.event.start;
+    if (d) setSelectedDate(new Date(d));
+  };
+
+  const renderEventContent = (eventInfo: any) => {
+    const t: Task | undefined = (eventInfo.event.extendedProps as any).task;
+    const color = categoryColors[(t?.category as any) || '未分类'] || '#9e9e9e';
+    return (
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <span style={{ width: 8, height: 8, borderRadius: 6, background: color, display: 'inline-block', marginRight: 6 }} />
+        <span style={{ fontSize: '0.9em' }}>{eventInfo.event.title}</span>
+      </div>
+    );
+  };
 
   return (
     <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
@@ -125,11 +168,15 @@ const SchedulePage: React.FC = () => {
         <Typography variant="h6">安排</Typography>
       </Box>
       <Box sx={{ p: 2, flex: 1, overflow: "auto" }}>
-        <Calendar
-          onClickDay={(value) => setSelectedDate(value as Date)}
-          tileContent={tileContent as any}
-          calendarType="US"
-          locale="zh-CN"
+        <FullCalendar
+          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+          initialView="dayGridMonth"
+          headerToolbar={{ left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' }}
+          events={events}
+          dateClick={handleDateClick}
+          eventClick={handleEventClick}
+          eventContent={renderEventContent}
+          ref={calendarRef as any}
         />
 
         {/* 已完成时间轴 */}

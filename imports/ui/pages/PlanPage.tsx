@@ -1,18 +1,22 @@
-// PlanPage.tsx
-// 计划页面（首页）
+// imports/ui/pages/PlanPage.tsx
+// Clean single implementation of PlanPage (fixed corruption)
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
+import { useHistory } from "react-router-dom";
 import { useTasksViewModel } from "../../viewmodels/useTasksViewModel";
+import { Task } from "../../models/task";
 import { styled, alpha } from "@mui/material/styles";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import InputBase from "@mui/material/InputBase";
-import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
 import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
+import TimerIcon from "@mui/icons-material/Timer";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import {
   Box,
   Stack,
@@ -22,32 +26,27 @@ import {
   List,
   ListItem,
   ListItemText,
-  Chip,
   Tooltip,
   Zoom,
   Divider,
+  Fab,
 } from "@mui/material";
+
+import WeekPicker from "../components/WeekPicker";
+import TaskCard from "../components/TaskCard";
+import TimeBlockComp from "../components/TimeBlock";
 import AddTaskDialog from "../components/AddTaskDialog";
 import NewTimeBlockDialog from "../components/NewTimeBlockDialog";
-import { Task } from "../../models/task";
-import TaskCard from "../components/TaskCard";
-import { useHistory } from "react-router-dom";
-import { useSwipeable } from "react-swipeable";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
   borderRadius: theme.shape.borderRadius,
-  backgroundColor: alpha(theme.palette.common.white, 0.15),
-  "&:hover": {
-    backgroundColor: alpha(theme.palette.common.white, 0.25),
-  },
+  backgroundColor: alpha(theme.palette.common.white, 0.08),
+  "&:hover": { backgroundColor: alpha(theme.palette.common.white, 0.12) },
   marginRight: theme.spacing(2),
   marginLeft: 0,
   width: "100%",
-  [theme.breakpoints.up("sm")]: {
-    marginLeft: theme.spacing(3),
-    width: "auto",
-  },
+  [theme.breakpoints.up("sm")]: { marginLeft: theme.spacing(3), width: "auto" },
 }));
 
 const SearchIconWrapper = styled("div")(({ theme }) => ({
@@ -67,23 +66,9 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
     paddingLeft: `calc(1em + ${theme.spacing(4)})`,
     transition: theme.transitions.create("width"),
     width: "100%",
-    [theme.breakpoints.up("md")]: {
-      width: "20ch",
-    },
+    [theme.breakpoints.up("md")]: { width: "20ch" },
   },
 }));
-
-// 分类颜色映射
-const categoryColors: Record<string, string> = {
-  social: "#f44336",
-  mind: "#2196f3",
-  health: "#4caf50",
-  work: "#9c27b0",
-  hobby: "#ff9800",
-  uncategorized: "#9e9e9e",
-};
-
-// TaskCard component extracted to imports/ui/components/TaskCard.tsx
 
 const PlanPage: React.FC = () => {
   const history = useHistory();
@@ -97,62 +82,53 @@ const PlanPage: React.FC = () => {
     startTask,
     completeTask,
   } = useTasksViewModel();
+
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddTaskDialogOpen, setIsAddTaskDialogOpen] = useState(false);
-  const [newBlockOpen, setNewBlockOpen] = useState(false);
-
-  // menu state for AppBar
+  const [isNewBlockOpen, setIsNewBlockOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [fabAnchorEl, setFabAnchorEl] = useState<null | HTMLElement>(null);
+  const [currentTimerTaskId, setCurrentTimerTaskId] = useState<string | null>(
+    null
+  );
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [addTaskBlockId, setAddTaskBlockId] = useState<string | null>(null);
 
-  const isMenuOpen = Boolean(anchorEl);
+  useEffect(() => {
+    let timer: ReturnType<typeof setInterval> | null = null;
+    if (currentTimerTaskId)
+      timer = setInterval(() => setElapsedSeconds((s) => s + 1), 1000);
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [currentTimerTaskId]);
 
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
+  const handleMenuOpen = (e: React.MouseEvent<HTMLElement>) =>
+    setAnchorEl(e.currentTarget);
+  const handleMenuClose = () => setAnchorEl(null);
 
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleOpenAddTaskDialog = () => {
+  const handleOpenAddTaskDialog = (blockId?: string) => {
+    if (blockId) setAddTaskBlockId(blockId);
     setIsAddTaskDialogOpen(true);
   };
-
   const handleCloseAddTaskDialog = () => {
     setIsAddTaskDialogOpen(false);
+    setAddTaskBlockId(null);
   };
 
   const handleSaveTask = async (
     taskData: Omit<Task, "_id" | "createdAt" | "status" | "completedAt">
   ) => {
     try {
-      await insertTask({
-        title: taskData.title,
-        category: taskData.category,
-        estimatedTime: taskData.estimatedTime,
-        notes: taskData.notes,
-        status: "pending",
-        blockId: taskData.blockId,
-      });
-    } catch (e) {
-      console.error("添加任务失败:", e);
+      const toInsert = { ...taskData, status: "pending" } as any;
+      if (addTaskBlockId) toInsert.blockId = addTaskBlockId;
+      await insertTask(toInsert);
+      setIsAddTaskDialogOpen(false);
+      setAddTaskBlockId(null);
+    } catch (err) {
+      console.error("save task failed", err);
     }
   };
-
-  // 周条（当周7天）
-  const startOfWeek = (() => {
-    const d = new Date(selectedDate);
-    const day = d.getDay() || 7;
-    d.setHours(0, 0, 0, 0);
-    d.setDate(d.getDate() - (day - 1));
-    return d;
-  })();
-
-  const daysOfWeek = Array.from({ length: 7 }).map((_, idx) => {
-    const d = new Date(startOfWeek);
-    d.setDate(startOfWeek.getDate() + idx);
-    return d;
-  });
 
   const handleCreateTimeBlock = async (data: {
     title: string;
@@ -161,31 +137,25 @@ const PlanPage: React.FC = () => {
     endTime?: string;
   }) => {
     try {
-      await insertTimeBlock({
-        title: data.title,
-        date: data.date,
-        startTime: data.startTime,
-        endTime: data.endTime,
-      } as any);
-      setNewBlockOpen(false);
-    } catch (e) {
-      console.error("创建时间块失败", e);
+      await insertTimeBlock({ ...data } as any);
+      setIsNewBlockOpen(false);
+    } catch (err) {
+      console.error("create timeblock failed", err);
     }
   };
 
-  // 计算已完成任务时间轴数据
   const completedTimeline = useMemo(() => {
     const completed = tasks.filter(
-      (t) => t.status === "completed" && t.completedAt
+      (t) => (t as any).status === "completed" && (t as any).completedAt
     );
     completed.sort(
       (a, b) =>
-        new Date(b.completedAt as any).getTime() -
-        new Date(a.completedAt as any).getTime()
+        new Date((b as any).completedAt || 0).getTime() -
+        new Date((a as any).completedAt || 0).getTime()
     );
     const groups: Record<string, Task[]> = {};
     completed.forEach((t) => {
-      const key = new Date(t.completedAt as any).toLocaleDateString();
+      const key = new Date((t as any).completedAt).toLocaleDateString();
       groups[key] = groups[key] || [];
       groups[key].push(t);
     });
@@ -194,118 +164,80 @@ const PlanPage: React.FC = () => {
 
   return (
     <Box sx={{ p: 0 }}>
-      {/* AppBar */}
-      <Box sx={{ flexGrow: 1 }}>
-        <AppBar position="static">
-          <Toolbar>
-            <IconButton
-              size="large"
-              edge="start"
-              color="inherit"
-              aria-label="menu"
-              sx={{ mr: 1 }}
-              onClick={handleMenuOpen}
-            >
-              <MenuIcon />
-            </IconButton>
-
-            <Search>
-              <SearchIconWrapper>
-                <SearchIcon />
-              </SearchIconWrapper>
-              <StyledInputBase
-                placeholder="搜索任务…"
-                inputProps={{ "aria-label": "search" }}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </Search>
-
-            <Box sx={{ flexGrow: 1 }} />
-
-            <Button color="inherit" onClick={() => setNewBlockOpen(true)}>
-              新建时间块
-            </Button>
-            <Button color="inherit" onClick={() => history.push("/pending")}>
-              待处理
-            </Button>
-          </Toolbar>
-        </AppBar>
-
-        {/* 菜单 */}
-        <Menu
-          anchorEl={anchorEl}
-          open={isMenuOpen}
-          onClose={handleMenuClose}
-          anchorOrigin={{ vertical: "top", horizontal: "left" }}
-          transformOrigin={{ vertical: "top", horizontal: "left" }}
-        >
-          <MenuItem
-            onClick={() => {
-              setNewBlockOpen(true);
-              handleMenuClose();
-            }}
+      <AppBar position="static">
+        <Toolbar>
+          <IconButton
+            edge="start"
+            color="inherit"
+            onClick={handleMenuOpen}
+            aria-label="menu"
+            sx={{ mr: 1 }}
           >
+            <MenuIcon />
+          </IconButton>
+
+          <Search>
+            <SearchIconWrapper>
+              <SearchIcon />
+            </SearchIconWrapper>
+            <StyledInputBase
+              placeholder="搜索任务…"
+              inputProps={{ "aria-label": "search" }}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </Search>
+
+          <Box sx={{ flexGrow: 1 }} />
+          <Button color="inherit" onClick={() => setIsNewBlockOpen(true)}>
             新建时间块
-          </MenuItem>
-          <MenuItem
-            onClick={() => {
-              history.push("/pending");
-              handleMenuClose();
-            }}
-          >
-            待处理事项
-          </MenuItem>
-        </Menu>
-      </Box>
+          </Button>
+          <Button color="inherit" onClick={() => history.push("/pending")}>
+            待处理
+          </Button>
+        </Toolbar>
+      </AppBar>
 
-      {/* 周条日期选择器 */}
-      <Box
-        sx={{
-          display: "flex",
-          gap: 1,
-          px: 2,
-          py: 1,
-          alignItems: "center",
-          overflowX: "auto",
-        }}
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleMenuClose}
       >
-        {daysOfWeek.map((d) => {
-          const isToday = new Date().toDateString() === d.toDateString();
-          const isSelected = selectedDate.toDateString() === d.toDateString();
-          return (
-            <Button
-              key={d.toISOString()}
-              variant={isSelected ? "contained" : "text"}
-              color={isToday ? "secondary" : "primary"}
-              onClick={() => setSelectedDate(new Date(d))}
-              sx={{ minWidth: 64, borderRadius: 2 }}
-            >
-              {`${d.getMonth() + 1}/${d.getDate()}`}
-            </Button>
-          );
-        })}
-      </Box>
+        <MenuItem
+          onClick={() => {
+            setIsNewBlockOpen(true);
+            handleMenuClose();
+          }}
+        >
+          新建时间块
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            history.push("/pending");
+            handleMenuClose();
+          }}
+        >
+          待处理事项
+        </MenuItem>
+      </Menu>
+
+      <WeekPicker selectedDate={selectedDate} onSelectDate={setSelectedDate} />
 
       <Stack spacing={2} sx={{ p: 2 }}>
-        <Typography variant="h5">计划</Typography>
-
-        {/* 添加任务按钮 */}
-        <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
-          <Tooltip title="添加新任务" arrow>
-            <Zoom in={true}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <Typography variant="h5">计划</Typography>
+          <Tooltip title="添加新任务">
+            <Zoom in>
               <Button
                 variant="contained"
-                color="primary"
                 startIcon={<AddIcon />}
-                onClick={handleOpenAddTaskDialog}
-                sx={{
-                  borderRadius: 8,
-                  px: 3,
-                  boxShadow: 2,
-                  "&:hover": { transform: "scale(1.05)", boxShadow: 4 },
-                  transition: "all 0.2s",
-                }}
+                onClick={() => handleOpenAddTaskDialog()}
               >
                 添加任务
               </Button>
@@ -313,23 +245,6 @@ const PlanPage: React.FC = () => {
           </Tooltip>
         </Box>
 
-        {/* 添加任务对话框 */}
-        <AddTaskDialog
-          open={isAddTaskDialogOpen}
-          onClose={handleCloseAddTaskDialog}
-          onSave={handleSaveTask}
-          title="添加新任务"
-        />
-
-        {/* 创建时间块对话框 */}
-        <NewTimeBlockDialog
-          open={newBlockOpen}
-          onClose={() => setNewBlockOpen(false)}
-          onSave={handleCreateTimeBlock}
-          initialDate={selectedDate}
-        />
-
-        {/* 左列：时间块；右列：任务 */}
         <Box
           sx={{
             display: "flex",
@@ -350,38 +265,27 @@ const PlanPage: React.FC = () => {
                 {timeBlocks.length > 0 ? (
                   timeBlocks.map((tb, index) => (
                     <Zoom
-                      in={true}
-                      style={{ transitionDelay: `${index * 30}ms` }}
+                      in
                       key={tb._id}
+                      style={{ transitionDelay: `${index * 30}ms` }}
                     >
-                      <ListItem
-                        divider
-                        disableGutters
-                        sx={{
-                          p: 1.5,
-                          borderRadius: 1,
-                          mb: 0.5,
-                          transition: "all 0.2s",
-                        }}
-                      >
-                        <ListItemText
-                          primary={
-                            <Typography
-                              variant="subtitle2"
-                              sx={{ fontWeight: 500 }}
-                            >
-                              {tb.title}
-                            </Typography>
+                      <ListItem divider disableGutters sx={{ p: 0.5, mb: 0.5 }}>
+                        <TimeBlockComp
+                          block={tb}
+                          tasks={tasks.filter((t) => t.blockId === tb._id)}
+                          onAddTask={(bid?: string) =>
+                            handleOpenAddTaskDialog(bid)
                           }
-                          secondary={
-                            <Typography
-                              variant="caption"
-                              color="text.secondary"
-                            >
-                              {new Date(tb.date).toLocaleDateString()}{" "}
-                              {tb.startTime}-{tb.endTime}
-                            </Typography>
-                          }
+                          onStartTask={(id: string) => {
+                            startTask(id);
+                            setCurrentTimerTaskId(id);
+                            setElapsedSeconds(0);
+                          }}
+                          onCompleteTask={(id: string, minutes?: number) => {
+                            completeTask(id, minutes || 0);
+                            if (currentTimerTaskId === id)
+                              setCurrentTimerTaskId(null);
+                          }}
                         />
                       </ListItem>
                     </Zoom>
@@ -412,14 +316,22 @@ const PlanPage: React.FC = () => {
               {tasks.length > 0 ? (
                 tasks.map((t, index) => (
                   <Zoom
-                    in={true}
-                    style={{ transitionDelay: `${index * 50}ms` }}
+                    in
                     key={t._id}
+                    style={{ transitionDelay: `${index * 50}ms` }}
                   >
                     <TaskCard
                       task={t}
-                      onStart={startTask}
-                      onComplete={completeTask}
+                      onStart={(id: string) => {
+                        startTask(id);
+                        setCurrentTimerTaskId(id);
+                        setElapsedSeconds(0);
+                      }}
+                      onComplete={(id: string, mins?: number) => {
+                        completeTask(id, mins || 0);
+                        if (currentTimerTaskId === id)
+                          setCurrentTimerTaskId(null);
+                      }}
                     />
                   </Zoom>
                 ))
@@ -432,7 +344,6 @@ const PlanPage: React.FC = () => {
               )}
             </Box>
 
-            {/* 完成时间轴（真实数据） */}
             <Box sx={{ mt: 3 }}>
               <Divider sx={{ mb: 1 }} />
               <Typography variant="subtitle2" sx={{ mb: 1 }}>
@@ -479,7 +390,67 @@ const PlanPage: React.FC = () => {
             </Box>
           </Box>
         </Box>
+
+        {/* FAB / Timer */}
+        <Box>
+          {currentTimerTaskId ? (
+            <>
+              <Fab
+                color="secondary"
+                aria-label="timer"
+                sx={{ position: "fixed", bottom: 80, right: 16 }}
+                onClick={(e) => setFabAnchorEl(e.currentTarget)}
+              >
+                <TimerIcon />
+              </Fab>
+              <Menu
+                anchorEl={fabAnchorEl}
+                open={Boolean(fabAnchorEl)}
+                onClose={() => setFabAnchorEl(null)}
+              >
+                <MenuItem
+                  onClick={() => {
+                    setIsAddTaskDialogOpen(true);
+                    setFabAnchorEl(null);
+                  }}
+                >
+                  新建任务
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    history.push(`/task/${currentTimerTaskId}`);
+                    setFabAnchorEl(null);
+                  }}
+                >
+                  当前任务详情
+                </MenuItem>
+              </Menu>
+            </>
+          ) : (
+            <Fab
+              color="primary"
+              aria-label="add"
+              sx={{ position: "fixed", bottom: 80, right: 16 }}
+              onClick={() => handleOpenAddTaskDialog()}
+            >
+              <PlayArrowIcon />
+            </Fab>
+          )}
+        </Box>
       </Stack>
+
+      <AddTaskDialog
+        open={isAddTaskDialogOpen}
+        onClose={handleCloseAddTaskDialog}
+        onSave={handleSaveTask}
+        title="添加新任务"
+      />
+      <NewTimeBlockDialog
+        open={isNewBlockOpen}
+        onClose={() => setIsNewBlockOpen(false)}
+        onSave={handleCreateTimeBlock}
+        initialDate={selectedDate}
+      />
     </Box>
   );
 };

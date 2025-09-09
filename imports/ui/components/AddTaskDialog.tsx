@@ -14,6 +14,8 @@ import {
   Typography,
   Slide,
   IconButton,
+  Checkbox,
+  FormControlLabel,
 } from "@mui/material";
 import { TransitionProps } from "@mui/material/transitions";
 import { Task } from "../../models/task";
@@ -76,6 +78,11 @@ const AddTaskDialog: React.FC<AddTaskDialogProps> = ({
   const [notes, setNotes] = useState("");
   const [dueDate, setDueDate] = useState<Date | null>(null);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
+  // PRD: repeat and habit fields
+  const [repeatType, setRepeatType] = useState<"none" | "daily" | "weekly" | "monthly">("none");
+  const [repeatRule, setRepeatRule] = useState<string>("");
+  const [timesPerDay, setTimesPerDay] = useState<number>(1);
+  const [applyToFuture, setApplyToFuture] = useState<boolean>(false);
 
   // 当对话框打开或初始任务变化时，重置表单
   useEffect(() => {
@@ -86,6 +93,17 @@ const AddTaskDialog: React.FC<AddTaskDialogProps> = ({
         setEstimatedTime(initialTask.estimatedTime || 25);
         setNotes(initialTask.notes || "");
         setDueDate(initialTask.dueDate ? new Date(initialTask.dueDate) : null);
+        // initialize repeat/habit fields if present
+        if (initialTask.repeat) {
+          setRepeatType(initialTask.repeat.type || "none");
+          setRepeatRule(initialTask.repeat.rule || "");
+          setTimesPerDay(initialTask.repeat.count || 1);
+        } else {
+          setRepeatType("none");
+          setRepeatRule("");
+          setTimesPerDay(1);
+        }
+        setApplyToFuture(false);
       } else {
         // 新任务的默认值
         setTaskTitle("");
@@ -93,6 +111,10 @@ const AddTaskDialog: React.FC<AddTaskDialogProps> = ({
         setEstimatedTime(25);
         setNotes("");
         setDueDate(null);
+        setRepeatType("none");
+        setRepeatRule("");
+        setTimesPerDay(1);
+        setApplyToFuture(false);
       }
     }
   }, [open, initialTask]);
@@ -108,6 +130,20 @@ const AddTaskDialog: React.FC<AddTaskDialogProps> = ({
         notes: notes.trim() || undefined,
         dueDate: dueDate ? dueDate.toISOString() : undefined,
       };
+
+    // attach repeat info if applicable
+    if (repeatType && repeatType !== "none") {
+      (taskData as any).repeat = {
+        type: repeatType,
+        rule: repeatRule || undefined,
+        count: timesPerDay || 1,
+      };
+    }
+
+    // habit applyToFuture passed as meta flag when editing existing tasks
+    if (applyToFuture) {
+      (taskData as any)._applyToFuture = true;
+    }
 
     onSave(taskData);
     onClose();

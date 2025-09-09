@@ -1,37 +1,40 @@
-import { useTracker } from 'meteor/react-meteor-data';
-import { Meteor } from 'meteor/meteor';
-import { UserStatsCollection } from '../models/stats';
-import { useEffect } from 'react';
+import { useTracker } from "meteor/react-meteor-data";
+import { useEffect } from "react";
+import { UserStatsService } from "../lib/services/userStatsService";
+import { Meteor } from "meteor/meteor";
 
 export function useUserStatsViewModel() {
   // 初始化用户统计数据
   useEffect(() => {
-    Meteor.call('userStats.init');
+    UserStatsService.init();
   }, []);
-  
+
   // 订阅数据
   const loading = useTracker(() => {
-    const handle = Meteor.subscribe('userStats');
+    const handle = Meteor.subscribe("userStats");
     return !handle.ready();
   }, []);
-  
+
   // 获取用户统计数据
-  const stats = useTracker(() => {
-    return UserStatsCollection.findOne({});
-  }, []);
-  
+  const stats = useTracker(() => UserStatsService.fetchStats(), []);
+
   // 计算使用天数
-  const daysJoined = stats ? Math.ceil((new Date().getTime() - stats.joinDate.getTime()) / (1000 * 60 * 60 * 24)) : 0;
-  
+  const daysJoined = stats
+    ? Math.ceil(
+        (new Date().getTime() - stats.joinDate.getTime()) /
+          (1000 * 60 * 60 * 24)
+      )
+    : 0;
+
   // 统计操作方法
   function incrementTaskCount() {
-    return Meteor.call('userStats.incrementTaskCount');
+    return UserStatsService.incrementTaskCount();
   }
-  
+
   function addTime(minutes: number) {
-    return Meteor.call('userStats.addTime', minutes);
+    return UserStatsService.addTime(minutes);
   }
-  
+
   return {
     // 数据
     stats,
@@ -39,7 +42,7 @@ export function useUserStatsViewModel() {
     daysJoined,
     completedTasks: stats?.completedTasks || 0,
     totalHours: stats?.totalTime || 0,
-    
+
     // 操作
     incrementTaskCount,
     addTime,

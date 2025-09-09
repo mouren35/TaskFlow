@@ -61,12 +61,12 @@ Meteor.methods({
   },
   // camelCase aliases
   "timeBlocks.insert"(block: Partial<TimeBlock>) {
-    return Meteor.call('timeblocks.insert', block);
+    return Meteor.call("timeblocks.insert", block);
   },
   "timeBlocks.update"(blockId: string, updates: Partial<TimeBlock>) {
-    return Meteor.call('timeblocks.update', blockId, updates);
+    return Meteor.call("timeblocks.update", blockId, updates);
   },
   "timeBlocks.remove"(blockId: string) {
-    return Meteor.call('timeblocks.remove', blockId);
+    return Meteor.call("timeblocks.remove", blockId);
   },
 });
