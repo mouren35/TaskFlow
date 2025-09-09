@@ -1,17 +1,18 @@
 export interface TimeBlock {
   _id?: string;
   title: string;
-  start?: Date | null;
-  end?: Date | null;
+  date: Date;
+  startTime: string;
+  endTime?: string | null;
   createdAt: Date;
 }
 
 export interface Task {
   _id?: string;
   title: string;
-  timeBlockId?: string | null;
-  estimatedMinutes: number;
-  completed?: boolean;
+  blockId?: string | null;
+  estimatedTime: number;
+  status?: 'pending' | 'inProgress' | 'completed';
   createdAt: Date;
   category?: string;
   notes?: string;

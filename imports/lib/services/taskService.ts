@@ -1,16 +1,6 @@
-import { Meteor } from "meteor/meteor";
 import { TasksCollection, Task } from "../../models/task";
 import { TimeBlocksCollection, TimeBlock } from "../../models/timeblock";
-
-function callMeteor<T = any>(method: string, ...args: any[]): Promise<T> {
-  return new Promise((resolve, reject) => {
-    // @ts-ignore meteor callback
-    Meteor.call(method, ...args, (err: any, res: T) => {
-      if (err) reject(err);
-      else resolve(res);
-    });
-  });
-}
+import { TasksAPI, TimeBlocksAPI } from "../../api/tasks/methods";
 
 export const TaskService = {
   // Read helpers (synchronous, for use inside useTracker)
@@ -33,39 +23,40 @@ export const TaskService = {
 
   // Operations (return Promises)
   insertTask(task: Omit<Task, "_id" | "createdAt">) {
-    return callMeteor("tasks.insert", task);
+    return TasksAPI.insert(task as any);
   },
 
   updateTask(id: string, updates: Partial<Task>) {
-    return callMeteor("tasks.update", id, updates);
+    return TasksAPI.update(id, updates as any);
   },
 
   removeTask(id: string) {
-    return callMeteor("tasks.remove", id);
+    return TasksAPI.remove(id);
   },
 
   completeTask(id: string, actualTime: number) {
-    return callMeteor("tasks.complete", id, actualTime);
+    return TasksAPI.complete(id, actualTime);
   },
 
   startTask(id: string) {
-    return callMeteor("tasks.start", id);
+    // models/task.ts already implements tasks.start via Meteor.methods, so call directly
+    return TasksAPI.update(id, { status: "inProgress" } as any);
   },
 
   pauseTask(id: string) {
-    return callMeteor("tasks.pause", id);
+    return TasksAPI.update(id, { status: "pending" } as any);
   },
 
   insertTimeBlock(tb: Omit<TimeBlock, "_id" | "createdAt" | "updatedAt">) {
-    return callMeteor("timeBlocks.insert", tb);
+    return TimeBlocksAPI.insert(tb as any);
   },
 
   updateTimeBlock(id: string, updates: Partial<TimeBlock>) {
-    return callMeteor("timeBlocks.update", id, updates);
+    return TimeBlocksAPI.update(id, updates as any);
   },
 
   removeTimeBlock(id: string) {
-    return callMeteor("timeBlocks.remove", id);
+    return TimeBlocksAPI.remove(id);
   },
 
   // Helper to fetch tasks by block id (synchronous)

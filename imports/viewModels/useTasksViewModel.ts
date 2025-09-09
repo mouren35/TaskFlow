@@ -20,12 +20,23 @@ export function useTasksViewModel() {
     return !handle.ready();
   }, [selectedDate]);
 
-  // 获取任务数据 (delegated to TaskService helper that still uses collection)
-  const allTasks: Task[] = useTracker(() => TaskService.fetchAllTasks(), []);
+  // 获取任务数据 (直接使用 collection 查询，保持 useTracker 的反应式行为)
+  const allTasks: Task[] = useTracker(() =>
+    TasksCollection.find({}, { sort: { createdAt: -1 } }).fetch()
+  , []);
 
   // 获取当前选中日期的时间块
   const timeBlocks: TimeBlock[] = useTracker(
-    () => TaskService.fetchTimeBlocksByDate(selectedDate),
+    () =>
+      TimeBlocksCollection.find(
+        {
+          date: {
+            $gte: new Date(selectedDate.setHours(0, 0, 0, 0)),
+            $lte: new Date(selectedDate.setHours(23, 59, 59, 999)),
+          },
+        },
+        { sort: { startTime: 1 } }
+      ).fetch(),
     [selectedDate]
   );
 

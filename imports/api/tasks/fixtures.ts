@@ -1,28 +1,31 @@
 import { Meteor } from "meteor/meteor";
-import { Tasks, TimeBlocks } from "./collection";
+import { TasksCollection } from "../../models/task";
+import { TimeBlocksCollection } from "../../models/timeblock";
 
 export function loadSampleTasks() {
   if (Meteor.isServer) {
     Meteor.startup(() => {
-      if (TimeBlocks.find().count() === 0) {
+      if (TimeBlocksCollection.find().count() === 0) {
         const now = new Date();
         const tb = {
           title: "默认时间块",
-          start: new Date(now.setHours(8, 0, 0, 0)),
-          end: null,
+          date: new Date(now.setHours(8, 0, 0, 0)),
+          startTime: "08:00",
+          endTime: null,
           createdAt: new Date(),
-        };
-        const tbId = TimeBlocks.insert(tb as any);
+          updatedAt: new Date(),
+        } as any;
+        const tbId = TimeBlocksCollection.insert(tb);
 
-        Tasks.insert({
+        TasksCollection.insert({
           title: "示例任务：完成第一个时间块",
-          timeBlockId: tbId,
-          estimatedMinutes: 25,
-          completed: false,
+          blockId: tbId,
+          estimatedTime: 25,
+          status: "pending",
           createdAt: new Date(),
-          category: "默认",
+          category: "uncategorized",
           notes: "",
-        });
+        } as any);
       }
     });
   }

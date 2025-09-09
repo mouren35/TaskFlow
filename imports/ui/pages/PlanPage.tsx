@@ -3,7 +3,7 @@
 
 import React, { useState, useMemo, useEffect } from "react";
 import { useHistory } from "react-router-dom";
-import { useTasksViewModel } from "../../viewmodels/useTasksViewModel";
+import { useTasksViewModel } from "../../viewModels/useTasksViewModel";
 import { Task } from "../../models/task";
 import { styled, alpha } from "@mui/material/styles";
 import AppBar from "@mui/material/AppBar";

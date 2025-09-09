@@ -1,15 +1,14 @@
-import { Mongo } from "meteor/mongo";
 import { Meteor } from "meteor/meteor";
-import type { Task, TimeBlock } from "./types";
+import { TasksCollection } from "../../models/task";
+import { TimeBlocksCollection } from "../../models/timeblock";
 
-export const Tasks = new Mongo.Collection<Task>("tasks");
-export const TimeBlocks = new Mongo.Collection<TimeBlock>("timeblocks");
+// Export aliases to keep compatibility with older import paths
+export const Tasks = TasksCollection as typeof TasksCollection;
+export const TimeBlocks = TimeBlocksCollection as typeof TimeBlocksCollection;
 
-// On server publish minimal fields
+// On server ensure indexes (use underlying rawCollection)
 if (Meteor.isServer) {
-  // ensure indexes if needed
   Meteor.startup(() => {
-    // rawCollection may not support createIndex in some environments; ignore errors
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     (Tasks.rawCollection() as any)
       .createIndex({ createdAt: 1 })

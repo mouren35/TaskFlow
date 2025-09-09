@@ -23,7 +23,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import '@fullcalendar/daygrid/main.css';
 import '@fullcalendar/timegrid/main.css';
-import { useTasksViewModel } from "../../viewmodels/useTasksViewModel";
+import { useTasksViewModel } from "../../viewModels/useTasksViewModel";
 import type { Task } from "../../models/task";
 import type { TimeBlock } from "../../models/timeblock";
 
@@ -39,7 +39,7 @@ const categoryColors: Record<string, string> = {
 const SchedulePage: React.FC = () => {
   const { tasks, timeBlocks } = useTasksViewModel();
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const calendarRef = React.useRef<FullCalendar | null>(null);
+  const calendarRef = React.useRef<any | null>(null);
 
   // blockId -> date 映射
   const blockDateMap = useMemo<Record<string, Date>>(() => {
