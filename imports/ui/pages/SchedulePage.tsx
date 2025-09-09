@@ -18,7 +18,7 @@ import {
 } from "@mui/material";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
-import { useTasksViewModel } from "../../viewModels/useTasksViewModel";
+import { useTasksViewModel } from "../../viewmodels/useTasksViewModel";
 import type { Task } from "../../models/task";
 import type { TimeBlock } from "../../models/timeblock";
 

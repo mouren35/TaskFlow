@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Box,
   Typography,
@@ -9,7 +9,7 @@ import {
   ListItemText,
   ListItemIcon,
   Paper,
-} from '@mui/material';
+} from "@mui/material";
 import {
   ExpandMore,
   ChevronRight,
@@ -18,12 +18,12 @@ import {
   Add,
   Edit,
   Delete,
-} from '@mui/icons-material';
+} from "@mui/icons-material";
 
 export interface TreeNode {
   id: string;
   title: string;
-  type: 'folder' | 'item';
+  type: "folder" | "item";
   children?: TreeNode[];
   content?: string;
   tags?: string[];
@@ -47,14 +47,14 @@ const TreeView: React.FC<TreeViewProps> = ({
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   const toggleExpand = (nodeId: string) => {
-    setExpanded(prev => ({
+    setExpanded((prev) => ({
       ...prev,
       [nodeId]: !prev[nodeId],
     }));
   };
 
-  const renderTreeNodes = (nodes: TreeNode[], level = 0) => {
-    return nodes.map(node => {
+  const renderTreeNodes = (nodes: TreeNode[] = [], level = 0) => {
+    return (nodes || []).map((node) => {
       const isExpanded = expanded[node.id] || false;
       const hasChildren = node.children && node.children.length > 0;
 
@@ -64,12 +64,15 @@ const TreeView: React.FC<TreeViewProps> = ({
             sx={{
               pl: level * 2 + 1,
               py: 0.5,
-              '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' },
-              '&:hover .node-actions': { opacity: 1 },
+              "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" },
+              "&:hover .node-actions": { opacity: 1 },
             }}
           >
-            {node.type === 'folder' && (
-              <ListItemIcon sx={{ minWidth: 36 }} onClick={() => toggleExpand(node.id)}>
+            {node.type === "folder" && (
+              <ListItemIcon
+                sx={{ minWidth: 36 }}
+                onClick={() => toggleExpand(node.id)}
+              >
                 {hasChildren ? (
                   isExpanded ? (
                     <ExpandMore fontSize="small" />
@@ -83,10 +86,10 @@ const TreeView: React.FC<TreeViewProps> = ({
             )}
 
             <ListItemIcon sx={{ minWidth: 36 }}>
-              {node.type === 'folder' ? (
-                <Folder fontSize="small" sx={{ color: '#FFA000' }} />
+              {node.type === "folder" ? (
+                <Folder fontSize="small" sx={{ color: "#FFA000" }} />
               ) : (
-                <Description fontSize="small" sx={{ color: '#2196F3' }} />
+                <Description fontSize="small" sx={{ color: "#2196F3" }} />
               )}
             </ListItemIcon>
 
@@ -95,10 +98,10 @@ const TreeView: React.FC<TreeViewProps> = ({
                 <Typography
                   variant="body2"
                   sx={{
-                    fontWeight: node.type === 'folder' ? 'medium' : 'normal',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
+                    fontWeight: node.type === "folder" ? "medium" : "normal",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
                   }}
                   onClick={() => onSelectNode(node)}
                 >
@@ -110,12 +113,12 @@ const TreeView: React.FC<TreeViewProps> = ({
             <Box
               className="node-actions"
               sx={{
-                display: 'flex',
+                display: "flex",
                 opacity: 0,
-                transition: 'opacity 0.2s',
+                transition: "opacity 0.2s",
               }}
             >
-              {node.type === 'folder' && (
+              {node.type === "folder" && (
                 <IconButton
                   size="small"
                   onClick={() => onAddNode(node.id)}
@@ -141,10 +144,10 @@ const TreeView: React.FC<TreeViewProps> = ({
             </Box>
           </ListItem>
 
-          {node.type === 'folder' && hasChildren && (
+          {node.type === "folder" && hasChildren && (
             <Collapse in={isExpanded} timeout="auto" unmountOnExit>
               <List component="div" disablePadding>
-                {renderTreeNodes(node.children, level + 1)}
+                {renderTreeNodes(node.children ?? [], level + 1)}
               </List>
             </Collapse>
           )}
@@ -157,13 +160,20 @@ const TreeView: React.FC<TreeViewProps> = ({
     <Paper
       elevation={0}
       sx={{
-        border: '1px solid #e0e0e0',
+        border: "1px solid #e0e0e0",
         borderRadius: 1,
-        height: '100%',
-        overflow: 'auto',
+        height: "100%",
+        overflow: "auto",
       }}
     >
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', p: 1, borderBottom: '1px solid #e0e0e0' }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          p: 1,
+          borderBottom: "1px solid #e0e0e0",
+        }}
+      >
         <Typography variant="subtitle2" fontWeight="medium">
           思考结构
         </Typography>

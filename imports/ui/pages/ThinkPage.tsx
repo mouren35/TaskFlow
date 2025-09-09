@@ -251,8 +251,10 @@ const ThinkPage: React.FC = () => {
           )}
         </Box>
       ) : (
-        <Grid container spacing={2} sx={{ flex: 1, p: 2, overflow: "hidden" }}>
-          <Grid item xs={4} sx={{ height: "100%" }}>
+        <Box
+          sx={{ display: "flex", flex: 1, gap: 2, p: 2, overflow: "hidden" }}
+        >
+          <Box sx={{ width: "33.333%", height: "100%" }}>
             <TreeView
               data={treeData}
               onAddNode={(pid) => handleAddThought(pid)}
@@ -263,8 +265,8 @@ const ThinkPage: React.FC = () => {
               onDeleteNode={(id) => handleDeleteThought(id)}
               onSelectNode={(n) => setSelectedTreeNode(n)}
             />
-          </Grid>
-          <Grid item xs={8} sx={{ height: "100%" }}>
+          </Box>
+          <Box sx={{ flex: 1, height: "100%" }}>
             <Paper
               elevation={0}
               sx={{
@@ -304,8 +306,8 @@ const ThinkPage: React.FC = () => {
                 </Box>
               )}
             </Paper>
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
       )}
 
       <Box

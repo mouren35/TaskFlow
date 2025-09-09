@@ -6,7 +6,7 @@ import {
   DialogActions,
   TextField,
   Button,
-  Grid,
+  Box,
 } from "@mui/material";
 
 interface NewTimeBlockDialogProps {
@@ -55,8 +55,10 @@ const NewTimeBlockDialog: React.FC<NewTimeBlockDialogProps> = ({
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>新建时间块</DialogTitle>
       <DialogContent>
-        <Grid container spacing={2} sx={{ mt: 0.5 }}>
-          <Grid item xs={12}>
+        <Box
+          sx={{ display: "grid", gridTemplateColumns: "1fr", gap: 2, mt: 0.5 }}
+        >
+          <Box>
             <TextField
               label="标题"
               fullWidth
@@ -64,8 +66,8 @@ const NewTimeBlockDialog: React.FC<NewTimeBlockDialogProps> = ({
               onChange={(e) => setTitle(e.target.value)}
               autoFocus
             />
-          </Grid>
-          <Grid item xs={12} sm={6}>
+          </Box>
+          <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2 }}>
             <TextField
               label="日期"
               type="date"
@@ -74,8 +76,6 @@ const NewTimeBlockDialog: React.FC<NewTimeBlockDialogProps> = ({
               onChange={(e) => setDate(new Date(e.target.value))}
               InputLabelProps={{ shrink: true }}
             />
-          </Grid>
-          <Grid item xs={6} sm={3}>
             <TextField
               label="开始时间"
               type="time"
@@ -85,8 +85,8 @@ const NewTimeBlockDialog: React.FC<NewTimeBlockDialogProps> = ({
               InputLabelProps={{ shrink: true }}
               inputProps={{ step: 300 }}
             />
-          </Grid>
-          <Grid item xs={6} sm={3}>
+          </Box>
+          <Box>
             <TextField
               label="结束时间（可选）"
               type="time"
@@ -96,8 +96,8 @@ const NewTimeBlockDialog: React.FC<NewTimeBlockDialogProps> = ({
               InputLabelProps={{ shrink: true }}
               inputProps={{ step: 300 }}
             />
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>取消</Button>
