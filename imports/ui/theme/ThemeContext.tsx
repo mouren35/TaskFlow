@@ -23,94 +23,143 @@ const ThemeContext = createContext<ThemeContextType>({
   toggleTheme: () => {},
 });
 
-// 自定义钩子，方便组件使用主题上下文
 export const useThemeContext = () => useContext(ThemeContext);
 
 // 主题提供者组件属性
 interface ThemeProviderProps {
   children: React.ReactNode;
 }
-
-// 统一设计令牌（新主题）
+// 统一设计令牌（Material You 风格 — 白底 + 深色重色系）
 const designTokens = (mode: "light" | "dark") => {
   const isLight = mode === "light";
 
+  // 深色系：使用 Material 深色色阶以确保可读性与对比
+  const deepBlue = "#0D47A1"; // Blue 900
+  const deepRed = "#B71C1C"; // Red 900
+  const deepGreen = "#1B5E20"; // Green 900
+
+  // 轻微的表面色调用于 Material You 风格的层次感
+  const lightBg = "#FFFFFF"; // 白色背景
+  const surface = "#FFFFFF"; // 卡片表面（Light）
+  const surfacedSoft = "rgba(13,71,161,0.04)"; // 带蓝色基调的轻表面
+
+  const palette = {
+    mode,
+    primary: { main: deepBlue, contrastText: "#fff" },
+    secondary: { main: deepRed, contrastText: "#fff" },
+    success: { main: deepGreen, contrastText: "#fff" },
+    background: {
+      default: isLight ? lightBg : "#061316",
+      paper: isLight ? surface : "#071018",
+    },
+    divider: isLight ? "rgba(7,20,39,0.08)" : "rgba(255,255,255,0.06)",
+    text: {
+      primary: isLight ? "#071427" : "#F8FAFC",
+      secondary: isLight ? "#42526E" : "#9CA3AF",
+    },
+  } as const;
+
   return {
-    palette: {
-      mode,
-      primary: {
-        // Indigo 500/400
-        main: isLight ? "#6366F1" : "#8B8EF6",
-        contrastText: "#ffffff",
-      },
-      secondary: {
-        // Emerald 500/400
-        main: isLight ? "#22C55E" : "#34D399",
-        contrastText: "#ffffff",
-      },
-      background: {
-        default: isLight ? "#f7f7fb" : "#0f172a", // slate-900
-        paper: isLight ? "#ffffff" : "#111827", // near slate-800
-      },
-      divider: isLight ? "rgba(15,23,42,0.08)" : "rgba(255,255,255,0.12)",
-      text: {
-        primary: isLight ? "#0f172a" : "#e5e7eb",
-        secondary: isLight ? "#475569" : "#cbd5e1",
-      },
-    },
-    shape: {
-      borderRadius: 12,
-    },
+    palette,
+    shape: { borderRadius: 18 },
     typography: {
-      fontFamily: '"Segoe UI", Roboto, Helvetica, Arial, system-ui, sans-serif',
+      fontFamily:
+        '"Inter", "Segoe UI", Roboto, Helvetica, Arial, system-ui, sans-serif',
       h5: { fontWeight: 700 },
       h6: { fontWeight: 700 },
+      subtitle1: { color: palette.text.secondary },
       button: { textTransform: "none", fontWeight: 600 },
     },
     components: {
       MuiCssBaseline: {
         styleOverrides: {
           body: {
-            scrollbarWidth: "thin",
-            "&::-webkit-scrollbar": { width: "6px", height: "6px" },
-            "&::-webkit-scrollbar-track": {
-              background: isLight ? "#eef2ff" : "#0b1222",
-            },
-            "&::-webkit-scrollbar-thumb": {
-              backgroundColor: isLight ? "#c7d2fe" : "#334155",
-              borderRadius: "3px",
-            },
+            backgroundColor: palette.background.default,
+            color: palette.text.primary,
+            fontSmooth: "antialiased",
+            WebkitFontSmoothing: "antialiased",
+            MozOsxFontSmoothing: "grayscale",
           },
         },
       },
       MuiAppBar: {
-        defaultProps: { color: "primary" },
+        defaultProps: { color: "transparent", elevation: 0 },
         styleOverrides: {
           root: {
-            boxShadow: isLight
-              ? "0 2px 8px rgba(15,23,42,0.06)"
-              : "0 2px 8px rgba(0,0,0,0.5)",
+            background: isLight ? "transparent" : "transparent",
+            color: palette.text.primary,
+            backdropFilter: "saturate(120%) blur(6px)",
+            borderBottom: `1px solid ${palette.divider}`,
           },
         },
       },
       MuiPaper: {
         styleOverrides: {
           root: {
-            transition: "background-color .2s ease, box-shadow .2s ease",
+            backgroundColor: palette.background.paper,
+            borderRadius: 16,
+            // Material You 风格的柔和投影，使用深色系作为泛光色
+            boxShadow: isLight
+              ? `0 10px 30px rgba(7,20,39,0.06), 0 2px 6px rgba(13,71,161,0.04)`
+              : "0 10px 30px rgba(0,0,0,0.6)",
+          },
+        },
+      },
+      MuiCard: {
+        styleOverrides: {
+          root: {
+            borderRadius: 16,
+            overflow: "visible",
+            boxShadow: isLight
+              ? `0 12px 36px rgba(7,20,39,0.06), 0 6px 18px rgba(13,71,161,0.06)`
+              : "0 14px 40px rgba(2,6,23,0.6)",
           },
         },
       },
       MuiButton: {
         styleOverrides: {
-          root: { borderRadius: 10 },
+          root: {
+            borderRadius: 14,
+            padding: "8px 14px",
+          },
+          containedPrimary: {
+            backgroundColor: deepBlue,
+            color: "#fff",
+            boxShadow: "0 12px 36px rgba(13,71,161,0.12)",
+          },
+          containedSecondary: {
+            backgroundColor: deepRed,
+            color: "#fff",
+            boxShadow: "0 12px 36px rgba(183,28,28,0.12)",
+          },
+        },
+      },
+      MuiFab: {
+        styleOverrides: {
+          root: {
+            boxShadow: "0 18px 48px rgba(13,71,161,0.16)",
+            backgroundColor: deepBlue,
+            color: "#fff",
+          },
         },
       },
       MuiBottomNavigation: {
         styleOverrides: {
           root: {
-            backgroundColor: isLight ? "#ffffff" : "#111827",
-            borderTop: `1px solid ${isLight ? "rgba(15,23,42,0.08)" : "rgba(255,255,255,0.12)"}`,
+            borderRadius: 999,
+            background: isLight
+              ? "rgba(255,255,255,0.96)"
+              : "rgba(10,14,18,0.85)",
+            boxShadow: isLight
+              ? "0 12px 36px rgba(7,20,39,0.06)"
+              : "0 12px 36px rgba(0,0,0,0.6)",
+            padding: "6px 12px",
           },
+        },
+      },
+      MuiDivider: {
+        styleOverrides: {
+          root: { backgroundColor: palette.divider },
         },
       },
     },

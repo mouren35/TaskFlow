@@ -61,7 +61,7 @@ interface Settings {
 const MyPage: React.FC = () => {
   const theme = useTheme();
   const { themeMode, setThemeMode, toggleTheme } = useThemeContext();
-  
+
   const [userStats] = useState<UserStats>({
     completedTasks: 156,
     totalHours: 89.5,
@@ -121,7 +121,12 @@ const MyPage: React.FC = () => {
   const settingsItems = [
     {
       label: "主题",
-      value: settings.theme === "light" ? "浅色" : settings.theme === "dark" ? "深色" : "跟随系统",
+      value:
+        settings.theme === "light"
+          ? "浅色"
+          : settings.theme === "dark"
+            ? "深色"
+            : "跟随系统",
       icon: settings.theme === "light" ? <Brightness7 /> : <Brightness4 />,
       onClick: () => setThemeDialogOpen(true),
     },
@@ -129,7 +134,8 @@ const MyPage: React.FC = () => {
       label: "开启音效",
       value: settings.soundEnabled ? "已开启" : "已关闭",
       icon: <VolumeUp />,
-      onClick: () => handleSettingChange("soundEnabled", !settings.soundEnabled),
+      onClick: () =>
+        handleSettingChange("soundEnabled", !settings.soundEnabled),
       isSwitch: true,
       switchValue: settings.soundEnabled,
     },
@@ -149,7 +155,11 @@ const MyPage: React.FC = () => {
       label: "开启通知",
       value: settings.notificationsEnabled ? "已开启" : "已关闭",
       icon: <Notifications />,
-      onClick: () => handleSettingChange("notificationsEnabled", !settings.notificationsEnabled),
+      onClick: () =>
+        handleSettingChange(
+          "notificationsEnabled",
+          !settings.notificationsEnabled
+        ),
       isSwitch: true,
       switchValue: settings.notificationsEnabled,
     },
@@ -157,7 +167,8 @@ const MyPage: React.FC = () => {
       label: "计时到时提醒",
       value: settings.reminderEnabled ? "已开启" : "已关闭",
       icon: <Notifications />,
-      onClick: () => handleSettingChange("reminderEnabled", !settings.reminderEnabled),
+      onClick: () =>
+        handleSettingChange("reminderEnabled", !settings.reminderEnabled),
       isSwitch: true,
       switchValue: settings.reminderEnabled,
     },
@@ -165,7 +176,8 @@ const MyPage: React.FC = () => {
       label: "保持屏幕常亮",
       value: settings.keepScreenOn ? "已开启" : "已关闭",
       icon: <StayCurrentPortrait />,
-      onClick: () => handleSettingChange("keepScreenOn", !settings.keepScreenOn),
+      onClick: () =>
+        handleSettingChange("keepScreenOn", !settings.keepScreenOn),
       isSwitch: true,
       switchValue: settings.keepScreenOn,
     },
@@ -209,24 +221,6 @@ const MyPage: React.FC = () => {
           position: "relative",
         }}
       >
-        {/* 快速切换主题按钮 */}
-        <Tooltip title="切换主题模式">
-          <IconButton
-            onClick={toggleTheme}
-            sx={{
-              position: "absolute",
-              top: 10,
-              right: 10,
-              color: "white",
-              backgroundColor: "rgba(255,255,255,0.2)",
-              "&:hover": {
-                backgroundColor: "rgba(255,255,255,0.3)",
-              },
-            }}
-          >
-            {themeMode === "light" ? <Brightness4 /> : themeMode === "dark" ? <Brightness7 /> : <Settings />}
-          </IconButton>
-        </Tooltip>
         <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
           <Avatar
             sx={{
@@ -284,15 +278,10 @@ const MyPage: React.FC = () => {
             <ListItem
               key={item.label}
               onClick={item.onClick}
-              sx={{ py: 2, cursor: 'pointer' }}
+              sx={{ py: 2, cursor: "pointer" }}
             >
-              <ListItemIcon sx={{ color: "inherit" }}>
-                {item.icon}
-              </ListItemIcon>
-              <ListItemText
-                primary={item.label}
-                secondary={item.value}
-              />
+              <ListItemIcon sx={{ color: "inherit" }}>{item.icon}</ListItemIcon>
+              <ListItemText primary={item.label} secondary={item.value} />
               {item.isSwitch && (
                 <Switch
                   checked={item.switchValue}
@@ -315,15 +304,10 @@ const MyPage: React.FC = () => {
             <ListItem
               key={item.label}
               onClick={item.onClick}
-              sx={{ py: 2, cursor: 'pointer' }}
+              sx={{ py: 2, cursor: "pointer" }}
             >
-              <ListItemIcon sx={{ color: "inherit" }}>
-                {item.icon}
-              </ListItemIcon>
-              <ListItemText
-                primary={item.label}
-                secondary={item.value}
-              />
+              <ListItemIcon sx={{ color: "inherit" }}>{item.icon}</ListItemIcon>
+              <ListItemText primary={item.label} secondary={item.value} />
             </ListItem>
           ))}
         </List>
@@ -338,9 +322,17 @@ const MyPage: React.FC = () => {
               value={settings.theme}
               onChange={(e) => handleThemeChange(e.target.value as any)}
             >
-              <FormControlLabel value="light" control={<Radio />} label="浅色" />
+              <FormControlLabel
+                value="light"
+                control={<Radio />}
+                label="浅色"
+              />
               <FormControlLabel value="dark" control={<Radio />} label="深色" />
-              <FormControlLabel value="system" control={<Radio />} label="跟随系统" />
+              <FormControlLabel
+                value="system"
+                control={<Radio />}
+                label="跟随系统"
+              />
             </RadioGroup>
           </FormControl>
         </DialogContent>
@@ -350,7 +342,10 @@ const MyPage: React.FC = () => {
       </Dialog>
 
       {/* 分类选择对话框 */}
-      <Dialog open={categoryDialogOpen} onClose={() => setCategoryDialogOpen(false)}>
+      <Dialog
+        open={categoryDialogOpen}
+        onClose={() => setCategoryDialogOpen(false)}
+      >
         <DialogTitle>选择默认分类</DialogTitle>
         <DialogContent>
           <FormControl component="fieldset">
@@ -370,7 +365,10 @@ const MyPage: React.FC = () => {
                           width: 12,
                           height: 12,
                           borderRadius: "50%",
-                          background: categoryColors[category as keyof typeof categoryColors],
+                          background:
+                            categoryColors[
+                              category as keyof typeof categoryColors
+                            ],
                           mr: 1,
                         }}
                       />
@@ -388,7 +386,10 @@ const MyPage: React.FC = () => {
       </Dialog>
 
       {/* 时长选择对话框 */}
-      <Dialog open={durationDialogOpen} onClose={() => setDurationDialogOpen(false)}>
+      <Dialog
+        open={durationDialogOpen}
+        onClose={() => setDurationDialogOpen(false)}
+      >
         <DialogTitle>选择默认计时时长</DialogTitle>
         <DialogContent>
           <FormControl component="fieldset">

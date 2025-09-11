@@ -12,6 +12,9 @@ import IconButton from "@mui/material/IconButton";
 import InputBase from "@mui/material/InputBase";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
+import Drawer from "@mui/material/Drawer";
+import ListItemButton from "@mui/material/ListItemButton";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
@@ -87,6 +90,7 @@ const PlanPage: React.FC = () => {
   const [isAddTaskDialogOpen, setIsAddTaskDialogOpen] = useState(false);
   const [isNewBlockOpen, setIsNewBlockOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [fabAnchorEl, setFabAnchorEl] = useState<null | HTMLElement>(null);
   const [currentTimerTaskId, setCurrentTimerTaskId] = useState<string | null>(
     null
@@ -169,14 +173,14 @@ const PlanPage: React.FC = () => {
           <IconButton
             edge="start"
             color="inherit"
-            onClick={handleMenuOpen}
-            aria-label="menu"
+            onClick={() => setIsDrawerOpen(true)}
+            aria-label="open drawer"
             sx={{ mr: 1 }}
           >
             <MenuIcon />
           </IconButton>
 
-          <Search>
+          <Search sx={{ flex: 1 }}>
             <SearchIconWrapper>
               <SearchIcon />
             </SearchIconWrapper>
@@ -187,14 +191,14 @@ const PlanPage: React.FC = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </Search>
-
-          <Box sx={{ flexGrow: 1 }} />
-          <Button color="inherit" onClick={() => setIsNewBlockOpen(true)}>
-            新建时间块
-          </Button>
-          <Button color="inherit" onClick={() => history.push("/pending")}>
-            待处理
-          </Button>
+          <IconButton
+            color="inherit"
+            onClick={handleMenuOpen}
+            aria-label="更多"
+            sx={{ ml: 1 }}
+          >
+            <MoreVertIcon />
+          </IconButton>
         </Toolbar>
       </AppBar>
 
@@ -221,30 +225,38 @@ const PlanPage: React.FC = () => {
         </MenuItem>
       </Menu>
 
+      <Drawer
+        anchor="left"
+        open={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+      >
+        <Box
+          sx={{ width: 250 }}
+          role="presentation"
+          onKeyDown={() => setIsDrawerOpen(false)}
+        >
+          <List>
+            <ListItemButton
+              onClick={() => {
+                setIsDrawerOpen(false); /* add navigation if needed */
+              }}
+            >
+              <ListItemText primary="主页" />
+            </ListItemButton>
+            <ListItemButton
+              onClick={() => {
+                setIsDrawerOpen(false); /* add navigation if needed */
+              }}
+            >
+              <ListItemText primary="设置" />
+            </ListItemButton>
+          </List>
+        </Box>
+      </Drawer>
+
       <WeekPicker selectedDate={selectedDate} onSelectDate={setSelectedDate} />
 
       <Stack spacing={2} sx={{ p: 2 }}>
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <Typography variant="h5">计划</Typography>
-          <Tooltip title="添加新任务">
-            <Zoom in>
-              <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                onClick={() => handleOpenAddTaskDialog()}
-              >
-                添加任务
-              </Button>
-            </Zoom>
-          </Tooltip>
-        </Box>
-
         <Box
           sx={{
             display: "flex",
