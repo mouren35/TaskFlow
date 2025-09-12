@@ -1,11 +1,8 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
-import {
-  ThemeProvider as MuiThemeProvider,
-  createTheme,
-  Theme,
-} from "@mui/material/styles";
+import { ThemeProvider as MuiThemeProvider, Theme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import colors from "./colors";
+import { lightTheme, darkTheme } from "./materialTheme";
 
 // 定义主题类型
 type ThemeMode = "light" | "dark" | "system";
@@ -30,140 +27,8 @@ export const useThemeContext = () => useContext(ThemeContext);
 interface ThemeProviderProps {
   children: React.ReactNode;
 }
-// 统一设计令牌（Material You 风格 — 白底 + 深色重色系）
-const designTokens = (mode: "light" | "dark") => {
-  const isLight = mode === "light";
-
-  // map tokens to theme roles
-  const palette = {
-    mode,
-    primary: { main: colors.alpineOat, contrastText: colors.textDark },
-    secondary: { main: colors.cherryRed, contrastText: "#fff" },
-    success: { main: colors.dillGreen, contrastText: "#fff" },
-    info: { main: colors.trueBlue, contrastText: "#fff" },
-    background: {
-      default: isLight ? colors.alpineOat : "#061316",
-      paper: isLight ? "#FFFFFF" : "#071018",
-    },
-    divider: isLight ? colors.borderLight : "rgba(255,255,255,0.06)",
-    text: {
-      primary: isLight ? colors.textDark : "#F8FAFC",
-      secondary: isLight ? colors.textSecondary : "#9CA3AF",
-    },
-  } as const;
-
-  return {
-    palette,
-    shape: { borderRadius: 18 },
-    typography: {
-      fontFamily:
-        '"Inter", "Segoe UI", Roboto, Helvetica, Arial, system-ui, sans-serif',
-      h5: { fontWeight: 700 },
-      h6: { fontWeight: 700 },
-      subtitle1: { color: palette.text.secondary },
-      button: { textTransform: "none", fontWeight: 600 },
-    },
-    components: {
-      MuiCssBaseline: {
-        styleOverrides: {
-          body: {
-            backgroundColor: palette.background.default,
-            color: palette.text.primary,
-            fontSmooth: "antialiased",
-            WebkitFontSmoothing: "antialiased",
-            MozOsxFontSmoothing: "grayscale",
-          },
-        },
-      },
-      MuiAppBar: {
-        defaultProps: { color: "transparent", elevation: 0 },
-        styleOverrides: {
-          root: {
-            background: isLight ? "transparent" : "transparent",
-            color: palette.text.primary,
-            backdropFilter: "saturate(120%) blur(6px)",
-            borderBottom: `1px solid ${palette.divider}`,
-          },
-        },
-      },
-      MuiPaper: {
-        styleOverrides: {
-          root: {
-            backgroundColor: palette.background.paper,
-            borderRadius: 16,
-            // Material You 风格的柔和投影，使用深色系作为泛光色
-            boxShadow: isLight
-              ? `0 10px 30px rgba(7,20,39,0.06), 0 2px 6px rgba(17,45,78,0.04)`
-              : "0 10px 30px rgba(0,0,0,0.6)",
-          },
-        },
-      },
-      MuiCard: {
-        styleOverrides: {
-          root: {
-            borderRadius: 16,
-            overflow: "visible",
-            boxShadow: isLight
-              ? `0 12px 36px rgba(7,20,39,0.06), 0 6px 18px rgba(17,45,78,0.06)`
-              : "0 14px 40px rgba(2,6,23,0.6)",
-          },
-        },
-      },
-      MuiButton: {
-        styleOverrides: {
-          root: {
-            borderRadius: 14,
-            padding: "8px 14px",
-          },
-          containedPrimary: {
-            backgroundColor: colors.cherryRed,
-            color: "#fff",
-            boxShadow: "0 12px 36px rgba(211,47,47,0.12)",
-          },
-          containedSecondary: {
-            backgroundColor: colors.trueBlue,
-            color: "#fff",
-            boxShadow: "0 12px 36px rgba(19,125,197,0.12)",
-          },
-        },
-      },
-      MuiFab: {
-        styleOverrides: {
-          root: {
-            boxShadow: "0 18px 48px rgba(211,47,47,0.16)",
-            backgroundColor: colors.cherryRed,
-            color: "#fff",
-          },
-        },
-      },
-      MuiBottomNavigation: {
-        styleOverrides: {
-          root: {
-            borderRadius: 999,
-            background: isLight
-              ? "rgba(255,255,255,0.96)"
-              : "rgba(10,14,18,0.85)",
-            boxShadow: isLight
-              ? "0 12px 36px rgba(7,20,39,0.06)"
-              : "0 12px 36px rgba(0,0,0,0.6)",
-            padding: "6px 12px",
-          },
-        },
-      },
-      MuiDivider: {
-        styleOverrides: {
-          root: { backgroundColor: palette.divider },
-        },
-      },
-    },
-  } as const;
-};
-
-// 主题配置
-const getTheme = (mode: "light" | "dark"): Theme => {
-  const tokens = designTokens(mode);
-  return createTheme(tokens as any);
-};
+// The app now uses centralized themes exported from materialTheme.ts
+// lightTheme and darkTheme are created from the project's Material Theme Builder JSON.
 
 // 主题提供者组件
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
@@ -210,7 +75,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
 
   // 确定当前使用的主题
   const currentTheme = themeMode === "system" ? systemTheme : themeMode;
-  const theme = getTheme(currentTheme);
+  const theme = currentTheme === "dark" ? darkTheme : lightTheme;
 
   return (
     <ThemeContext.Provider value={{ themeMode, setThemeMode, toggleTheme }}>
