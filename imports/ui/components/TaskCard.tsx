@@ -1,16 +1,15 @@
 import React from "react";
 import { useSwipeable } from "react-swipeable";
 import { Paper, Stack, Box, Typography, Tooltip, Chip } from "@mui/material";
-import colors from "../theme/colors";
 import type { Task } from "../../models/task";
 
 const categoryColors: Record<string, string> = {
-  social: colors.cherryRed,
-  mind: colors.trueBlue,
-  health: colors.dillGreen,
+  social: "#f44336",
+  mind: "#2196f3",
+  health: "#4caf50",
   work: "#9c27b0",
   hobby: "#ff9800",
-  uncategorized: colors.neutralSecondary,
+  uncategorized: "#9e9e9e",
 };
 
 type Props = {
@@ -90,11 +89,7 @@ const TaskCard = React.forwardRef<HTMLDivElement, Props>(
                   : "未完成"
             }
             size="small"
-            sx={{
-              fontWeight: 500,
-              backgroundColor: task.status === "completed" ? colors.dillGreen : undefined,
-              color: task.status === "completed" ? "#fff" : undefined,
-            }}
+            sx={{ fontWeight: 500 }}
           />
         </Stack>
       </Paper>

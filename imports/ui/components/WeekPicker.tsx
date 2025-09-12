@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, useTheme } from "@mui/material";
 import colors from "../theme/colors";
 
 export function getStartOfWeek(date: Date) {

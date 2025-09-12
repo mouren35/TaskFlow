@@ -34,36 +34,21 @@ interface ThemeProviderProps {
 const designTokens = (mode: "light" | "dark") => {
   const isLight = mode === "light";
 
-  // 使用用户指定的调色板（Alpine Oat 背景 + 强调色/辅助色）
-  const {
-    alpineOat,
-    cherryRed,
-    butterYellow,
-    trueBlue,
-    midnightBlue,
-    dillGreen,
-    neutralText,
-    neutralSecondary,
-    neutralLight,
-  } = colors;
-
+  // map tokens to theme roles
   const palette = {
     mode,
-    // 主色调选择 Alpine Oat（以背景/卡片为主）
-    primary: { main: alpineOat, contrastText: neutralText },
-    // 强调色与辅助色
-    secondary: { main: cherryRed, contrastText: "#fff" },
-    info: { main: trueBlue, contrastText: "#fff" },
-    warning: { main: butterYellow, contrastText: neutralText },
-    success: { main: dillGreen, contrastText: "#fff" },
+    primary: { main: colors.alpineOat, contrastText: colors.textDark },
+    secondary: { main: colors.cherryRed, contrastText: "#fff" },
+    success: { main: colors.dillGreen, contrastText: "#fff" },
+    info: { main: colors.trueBlue, contrastText: "#fff" },
     background: {
-      default: isLight ? alpineOat : "#061316",
-      paper: isLight ? alpineOat : "#071018",
+      default: isLight ? colors.alpineOat : "#061316",
+      paper: isLight ? "#FFFFFF" : "#071018",
     },
-    divider: isLight ? neutralLight : "rgba(255,255,255,0.06)",
+    divider: isLight ? colors.borderLight : "rgba(255,255,255,0.06)",
     text: {
-      primary: isLight ? neutralText : "#F8FAFC",
-      secondary: isLight ? neutralSecondary : "#9CA3AF",
+      primary: isLight ? colors.textDark : "#F8FAFC",
+      secondary: isLight ? colors.textSecondary : "#9CA3AF",
     },
   } as const;
 
@@ -108,7 +93,7 @@ const designTokens = (mode: "light" | "dark") => {
             borderRadius: 16,
             // Material You 风格的柔和投影，使用深色系作为泛光色
             boxShadow: isLight
-              ? `0 10px 30px rgba(7,20,39,0.06), 0 2px 6px rgba(13,71,161,0.04)`
+              ? `0 10px 30px rgba(7,20,39,0.06), 0 2px 6px rgba(17,45,78,0.04)`
               : "0 10px 30px rgba(0,0,0,0.6)",
           },
         },
@@ -119,7 +104,7 @@ const designTokens = (mode: "light" | "dark") => {
             borderRadius: 16,
             overflow: "visible",
             boxShadow: isLight
-              ? `0 12px 36px rgba(7,20,39,0.06), 0 6px 18px rgba(13,71,161,0.06)`
+              ? `0 12px 36px rgba(7,20,39,0.06), 0 6px 18px rgba(17,45,78,0.06)`
               : "0 14px 40px rgba(2,6,23,0.6)",
           },
         },
@@ -131,22 +116,22 @@ const designTokens = (mode: "light" | "dark") => {
             padding: "8px 14px",
           },
           containedPrimary: {
-            backgroundColor: trueBlue,
-            color: "#fff",
-            boxShadow: "0 12px 36px rgba(19,125,197,0.12)",
-          },
-          containedSecondary: {
-            backgroundColor: cherryRed,
+            backgroundColor: colors.cherryRed,
             color: "#fff",
             boxShadow: "0 12px 36px rgba(211,47,47,0.12)",
+          },
+          containedSecondary: {
+            backgroundColor: colors.trueBlue,
+            color: "#fff",
+            boxShadow: "0 12px 36px rgba(19,125,197,0.12)",
           },
         },
       },
       MuiFab: {
         styleOverrides: {
           root: {
-            boxShadow: "0 18px 48px rgba(19,125,197,0.16)",
-            backgroundColor: trueBlue,
+            boxShadow: "0 18px 48px rgba(211,47,47,0.16)",
+            backgroundColor: colors.cherryRed,
             color: "#fff",
           },
         },
