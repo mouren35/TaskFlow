@@ -1,6 +1,5 @@
 import React from "react";
 import { Box, Typography, useTheme } from "@mui/material";
-import colors from "../theme/colors";
 
 export function getStartOfWeek(date: Date) {
   const d = new Date(date);
@@ -16,6 +15,7 @@ interface Props {
 }
 
 const WeekPicker: React.FC<Props> = ({ selectedDate, onSelectDate }) => {
+  const theme = useTheme();
   const startOfWeek = getStartOfWeek(selectedDate);
   const daysOfWeek = Array.from({ length: 7 }).map((_, idx) => {
     const d = new Date(startOfWeek);
@@ -99,7 +99,7 @@ const WeekPicker: React.FC<Props> = ({ selectedDate, onSelectDate }) => {
               {weekday}
             </Typography>
 
-            <Box
+              <Box
               sx={{
                 width: { xs: 32, sm: 36 },
                 height: { xs: 32, sm: 36 },
@@ -107,12 +107,10 @@ const WeekPicker: React.FC<Props> = ({ selectedDate, onSelectDate }) => {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                bgcolor: isSelected ? colors.trueBlue : "transparent",
-                color: isSelected ? "#fff" : "text.primary",
+                bgcolor: isSelected ? theme.palette.primary.main : "transparent",
+                color: isSelected ? theme.palette.common.white : "text.primary",
                 border: isSelected ? "none" : "1px solid transparent",
-                boxShadow: isSelected
-                  ? "0 2px 6px rgba(43,103,163,0.25)"
-                  : "none",
+                boxShadow: isSelected ? `0 2px 6px ${theme.palette.primary.main}33` : "none",
                 // disable transient click/tap animation so selection appears immediately
                 transition: "none",
               }}
@@ -135,7 +133,7 @@ const WeekPicker: React.FC<Props> = ({ selectedDate, onSelectDate }) => {
                     width: { xs: 5, sm: 6 },
                     height: { xs: 5, sm: 6 },
                     borderRadius: "50%",
-                    bgcolor: colors.trueBlue,
+                    bgcolor: theme.palette.primary.main,
                   }}
                 />
               ) : null}

@@ -41,17 +41,18 @@ interface SearchHistory {
   timestamp: Date;
 }
 
-const categoryColors = {
-  未分类: "#9e9e9e",
-  人际: "#f44336",
-  心智: "#2196f3",
-  健康: "#4caf50",
-  工作: "#9c27b0",
-  兴趣: "#ff9800",
-};
+// category colors derived per-theme inside component
 
 const SearchPage: React.FC = () => {
   const theme = useTheme();
+  const categoryColors = {
+    未分类: theme.palette.grey[500],
+    人际: theme.palette.error.main,
+    心智: theme.palette.primary.main,
+    健康: theme.palette.success.main,
+    工作: theme.palette.secondary.main,
+    兴趣: theme.palette.warning.main,
+  } as Record<string, string>;
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults] = useState<SearchResult[]>([
     {
@@ -115,7 +116,7 @@ const SearchPage: React.FC = () => {
       <AppBar
         position="static"
         elevation={0}
-        sx={{ background: "#fff", color: "#000" }}
+        sx={{ background: theme.palette.background.paper, color: theme.palette.text.primary }}
       >
         <Toolbar sx={{ px: 1 }}>
           <TextField
@@ -131,7 +132,7 @@ const SearchPage: React.FC = () => {
             size="small"
             fullWidth
             InputProps={{
-              startAdornment: <Search sx={{ mr: 1, color: "#666" }} />,
+              startAdornment: <Search sx={{ mr: 1, color: theme.palette.text.secondary }} />,
               endAdornment: searchQuery && (
                 <IconButton size="small" onClick={handleClearQuery}>
                   <Clear />
@@ -140,9 +141,9 @@ const SearchPage: React.FC = () => {
             }}
             sx={{
               mr: 1,
-              "& .MuiOutlinedInput-root": {
+                "& .MuiOutlinedInput-root": {
                 borderRadius: 20,
-                background: "#f5f5f5",
+                background: theme.palette.action.hover,
                 border: "none",
                 "& fieldset": { border: "none" },
               },
@@ -163,19 +164,12 @@ const SearchPage: React.FC = () => {
                 <ListItem
                   key={result.id}
                   sx={{
-                    cursor: "pointer",
-                    "&:hover": { backgroundColor: "#f5f5f5" },
-                  }}
+                      cursor: "pointer",
+                      "&:hover": { backgroundColor: theme.palette.action.hover },
+                    }}
                 >
                   <ListItemIcon>
-                    <Category
-                      sx={{
-                        color:
-                          categoryColors[
-                            result.category as keyof typeof categoryColors
-                          ],
-                      }}
-                    />
+                    <Category sx={{ color: categoryColors[result.category as keyof typeof categoryColors] }} />
                   </ListItemIcon>
                   <ListItemText
                     primary={result.title}
@@ -187,11 +181,8 @@ const SearchPage: React.FC = () => {
                           label={result.category}
                           size="small"
                           sx={{
-                            backgroundColor:
-                              categoryColors[
-                                result.category as keyof typeof categoryColors
-                              ],
-                            color: "#fff",
+                            backgroundColor: categoryColors[result.category as keyof typeof categoryColors],
+                            color: theme.palette.common.white,
                             height: 20,
                             fontSize: "0.75rem",
                           }}
@@ -225,12 +216,12 @@ const SearchPage: React.FC = () => {
                     handleSearch(history.query);
                   }}
                   sx={{
-                    cursor: "pointer",
-                    "&:hover": { backgroundColor: "#f5f5f5" },
-                  }}
+                      cursor: "pointer",
+                      "&:hover": { backgroundColor: theme.palette.action.hover },
+                    }}
                 >
                   <ListItemIcon>
-                    <History sx={{ color: "#666" }} />
+                    <History sx={{ color: theme.palette.text.secondary }} />
                   </ListItemIcon>
                   <ListItemText
                     primary={history.query}

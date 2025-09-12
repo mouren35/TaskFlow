@@ -9,6 +9,7 @@ import {
   Tooltip,
   Chip,
   IconButton,
+  useTheme,
 } from "@mui/material";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import CheckIcon from "@mui/icons-material/Check";
@@ -16,14 +17,14 @@ import InfoIcon from "@mui/icons-material/Info";
 import colors from "../theme/colors";
 import type { Task } from "../../models/task";
 
-const categoryColors: Record<string, string> = {
-  social: colors.cherryRed,
-  mind: colors.trueBlue,
-  health: colors.dillGreen,
-  work: colors.midnightBlue,
-  hobby: colors.butterYellow,
-  uncategorized: colors.textSecondary,
-};
+const categoryColors = (theme: any): Record<string, string> => ({
+  social: theme.palette.error.main,
+  mind: theme.palette.primary.main,
+  health: theme.palette.success.main,
+  work: theme.palette.secondary.main,
+  hobby: theme.palette.warning.main,
+  uncategorized: theme.palette.grey[500],
+});
 
 type Props = {
   task: Task;
@@ -33,6 +34,7 @@ type Props = {
 };
 
 const TaskCard = React.forwardRef<HTMLDivElement, Props>(({ task, onStart, onComplete, onOpenDetail }, ref) => {
+  const theme = useTheme();
   const handleStart = () => onStart(task._id as string);
   const handleComplete = () => onComplete(task._id as string, task.estimatedTime || 0);
   const openDetail = () => onOpenDetail && onOpenDetail(task._id as string);
@@ -74,14 +76,9 @@ const TaskCard = React.forwardRef<HTMLDivElement, Props>(({ task, onStart, onCom
             size="small"
             sx={{
               fontWeight: 600,
-              backgroundColor:
-                task.status === "completed"
-                  ? colors.cherryRed
-                  : task.status === "inProgress"
-                    ? colors.trueBlue
-                    : "transparent",
-              color: task.status === "completed" || task.status === "inProgress" ? "#fff" : colors.midnightBlue,
-              border: task.status === "pending" ? `1px solid ${colors.borderLight}` : "none",
+              backgroundColor: task.status === "completed" ? theme.palette.error.main : task.status === "inProgress" ? theme.palette.primary.main : "transparent",
+              color: task.status === "completed" || task.status === "inProgress" ? theme.palette.common.white : theme.palette.text.primary,
+              border: task.status === "pending" ? `1px solid ${theme.palette.divider}` : "none",
             }}
           />
         </Stack>

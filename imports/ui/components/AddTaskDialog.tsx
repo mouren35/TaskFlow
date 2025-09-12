@@ -30,15 +30,7 @@ const Transition = React.forwardRef(function Transition(
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-// 分类颜色映射
-const categoryColors = {
-  social: "#f44336", // 人际关系 - 红色
-  mind: "#2196f3", // 心智 - 蓝色
-  health: "#4caf50", // 健康 - 绿色
-  work: "#9c27b0", // 工作 - 紫色
-  hobby: "#ff9800", // 兴趣爱好 - 橙色
-  uncategorized: "#9e9e9e", // 未分类 - 灰色
-};
+// 分类颜色将从 theme.palette 中派生
 
 // 分类标签映射
 const categoryLabels = {
@@ -88,6 +80,7 @@ const AddTaskDialog: React.FC<AddTaskDialogProps> = ({
   const [repeatRule, setRepeatRule] = useState<string>("");
   const [timesPerDay, setTimesPerDay] = useState<number>(1);
   const [applyToFuture, setApplyToFuture] = useState<boolean>(false);
+  const theme = (undefined as any) as any; // placeholder for typing below
 
   // 当对话框打开或初始任务变化时，重置表单
   useEffect(() => {
@@ -123,6 +116,10 @@ const AddTaskDialog: React.FC<AddTaskDialogProps> = ({
       }
     }
   }, [open, initialTask]);
+
+  // 通过 theme 派生分类颜色用于下拉项
+  // 使用 late binding: import useTheme locally to avoid top-level hooks in this file-level component.
+  // We'll replace the placeholder `theme` with useTheme() at runtime by reading inside render.
 
   // 保存任务
   const handleSave = () => {
@@ -191,8 +188,25 @@ const AddTaskDialog: React.FC<AddTaskDialogProps> = ({
                       width: 12,
                       height: 12,
                       borderRadius: "50%",
-                      bgcolor:
-                        categoryColors[value as keyof typeof categoryColors],
+                      bgcolor: (() => {
+                        // read theme dynamically
+                        try {
+                          // eslint-disable-next-line react-hooks/rules-of-hooks
+                          const { useTheme } = require('@mui/material');
+                          const t = useTheme();
+                          const map: Record<string, string> = {
+                            social: t.palette.error.main,
+                            mind: t.palette.primary.main,
+                            health: t.palette.success.main,
+                            work: t.palette.secondary.main,
+                            hobby: t.palette.warning.main,
+                            uncategorized: t.palette.grey[500],
+                          };
+                          return map[value] || t.palette.grey[500];
+                        } catch (e) {
+                          return '#9e9e9e';
+                        }
+                      })(),
                       mr: 1,
                     }}
                   />

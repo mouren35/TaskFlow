@@ -27,14 +27,7 @@ import { useTasksViewModel } from "../../viewModels/useTasksViewModel";
 import type { Task } from "../../models/task";
 import type { TimeBlock } from "../../models/timeblock";
 
-const categoryColors: Record<string, string> = {
-  未分类: "#9e9e9e",
-  人际: "#f44336",
-  心智: "#2196f3",
-  健康: "#4caf50",
-  工作: "#9c27b0",
-  兴趣: "#ff9800",
-};
+// categoryColors will be derived from the theme inside the component using `useTheme()`
 
 const SchedulePage: React.FC = () => {
   const { tasks, timeBlocks } = useTasksViewModel();
@@ -89,9 +82,8 @@ const SchedulePage: React.FC = () => {
             label={task.title || "未定义"}
             size="small"
             sx={{
-              backgroundColor:
-                categoryColors[(task.category as any) || "未分类"] || "#9e9e9e",
-              color: "#fff",
+              backgroundColor: categoryColors[(task.category as any) || "未分类"] || theme.palette.grey[500],
+              color: theme.palette.common.white,
               height: 18,
               fontSize: "0.7rem",
             }}
@@ -153,7 +145,7 @@ const SchedulePage: React.FC = () => {
 
   const renderEventContent = (eventInfo: any) => {
     const t: Task | undefined = (eventInfo.event.extendedProps as any).task;
-    const color = categoryColors[(t?.category as any) || '未分类'] || '#9e9e9e';
+    const color = categoryColors[(t?.category as any) || '未分类'] || theme.palette.grey[500];
     return (
       <div style={{ display: 'flex', alignItems: 'center' }}>
         <span style={{ width: 8, height: 8, borderRadius: 6, background: color, display: 'inline-block', marginRight: 6 }} />
@@ -163,6 +155,14 @@ const SchedulePage: React.FC = () => {
   };
 
   const theme = useTheme();
+  const categoryColors = {
+    未分类: theme.palette.grey[500],
+    人际: theme.palette.error.main,
+    心智: theme.palette.primary.main,
+    健康: theme.palette.success.main,
+    工作: theme.palette.secondary.main,
+    兴趣: theme.palette.warning.main,
+  } as Record<string, string>;
 
   return (
     <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>

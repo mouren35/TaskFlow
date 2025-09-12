@@ -9,6 +9,7 @@ import {
   ListItemText,
   ListItemIcon,
   Paper,
+  useTheme,
 } from "@mui/material";
 import {
   ExpandMore,
@@ -53,6 +54,8 @@ const TreeView: React.FC<TreeViewProps> = ({
     }));
   };
 
+  const theme = useTheme();
+
   const renderTreeNodes = (nodes: TreeNode[] = [], level = 0) => {
     return (nodes || []).map((node) => {
       const isExpanded = expanded[node.id] || false;
@@ -87,9 +90,9 @@ const TreeView: React.FC<TreeViewProps> = ({
 
             <ListItemIcon sx={{ minWidth: 36 }}>
               {node.type === "folder" ? (
-                <Folder fontSize="small" sx={{ color: "#FFA000" }} />
+                <Folder fontSize="small" sx={{ color: theme.palette.warning.main }} />
               ) : (
-                <Description fontSize="small" sx={{ color: "#2196F3" }} />
+                <Description fontSize="small" sx={{ color: theme.palette.primary.main }} />
               )}
             </ListItemIcon>
 
@@ -160,7 +163,7 @@ const TreeView: React.FC<TreeViewProps> = ({
     <Paper
       elevation={0}
       sx={{
-        border: "1px solid #e0e0e0",
+        border: `1px solid ${theme.palette.divider}`,
         borderRadius: 1,
         height: "100%",
         overflow: "auto",
@@ -171,7 +174,7 @@ const TreeView: React.FC<TreeViewProps> = ({
           display: "flex",
           justifyContent: "space-between",
           p: 1,
-          borderBottom: "1px solid #e0e0e0",
+          borderBottom: `1px solid ${theme.palette.divider}`,
         }}
       >
         <Typography variant="subtitle2" fontWeight="medium">

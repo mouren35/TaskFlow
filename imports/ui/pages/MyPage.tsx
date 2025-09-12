@@ -86,13 +86,13 @@ const MyPage: React.FC = () => {
   const durations = [15, 20, 25, 30, 45, 60];
 
   const categoryColors = {
-    未分类: "#9e9e9e",
-    人际: "#f44336",
-    心智: "#2196f3",
-    健康: "#4caf50",
-    工作: "#9c27b0",
-    兴趣: "#ff9800",
-  };
+    未分类: theme.palette.grey[500],
+    人际: theme.palette.error.main,
+    心智: theme.palette.primary.main,
+    健康: theme.palette.success.main,
+    工作: theme.palette.secondary.main,
+    兴趣: theme.palette.warning.main,
+  } as Record<string, string>;
 
   const handleSettingChange = (key: keyof Settings, value: any) => {
     setSettings((prev) => ({ ...prev, [key]: value }));
@@ -214,20 +214,20 @@ const MyPage: React.FC = () => {
       <Paper
         elevation={0}
         sx={{
-          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-          color: "#fff",
+          background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
+          color: theme.palette.common.white,
           p: 3,
           borderRadius: 0,
           position: "relative",
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
-          <Avatar
+            <Avatar
             sx={{
               width: 60,
               height: 60,
               mr: 2,
-              background: "rgba(255,255,255,0.2)",
+              background: (theme) => `rgba(255,255,255,0.16)`,
             }}
           >
             {userStats.completedTasks.toString()[0]}

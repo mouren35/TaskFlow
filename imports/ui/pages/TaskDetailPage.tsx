@@ -49,20 +49,7 @@ interface Subtask {
   completed: boolean;
 }
 
-const categoryColors = {
-  未分类: "#9e9e9e",
-  人际: "#f44336",
-  心智: "#2196f3",
-  健康: "#4caf50",
-  工作: "#9c27b0",
-  兴趣: "#ff9800",
-};
-
-const priorityColors = {
-  low: "#4caf50",
-  medium: "#ff9800",
-  high: "#f44336",
-};
+// derive colors from theme inside the component
 
 const priorityLabels = {
   low: "低",
@@ -72,6 +59,20 @@ const priorityLabels = {
 
 const TaskDetailPage: React.FC = () => {
   const theme = useTheme();
+  const categoryColors = {
+    未分类: theme.palette.grey[500],
+    人际: theme.palette.error.main,
+    心智: theme.palette.primary.main,
+    健康: theme.palette.success.main,
+    工作: theme.palette.secondary.main,
+    兴趣: theme.palette.warning.main,
+  } as Record<string, string>;
+
+  const priorityColors = {
+    low: theme.palette.success.main,
+    medium: theme.palette.warning.main,
+    high: theme.palette.error.main,
+  } as Record<string, string>;
   const { id } = useParams<{ id: string }>();
   const history = useHistory();
 
@@ -177,8 +178,8 @@ const TaskDetailPage: React.FC = () => {
       <Box
         sx={{
           p: 2,
-          background: "#fff",
-          borderBottom: "1px solid #eee",
+          background: theme.palette.background.paper,
+          borderBottom: `1px solid ${theme.palette.divider}`,
           display: "flex",
           alignItems: "center",
           gap: 2,
@@ -218,9 +219,8 @@ const TaskDetailPage: React.FC = () => {
               icon={<Category />}
               label={task.category}
               sx={{
-                backgroundColor:
-                  categoryColors[task.category as keyof typeof categoryColors],
-                color: "#fff",
+                backgroundColor: categoryColors[task.category as keyof typeof categoryColors],
+                color: theme.palette.common.white,
               }}
             />
             <Chip
@@ -228,7 +228,7 @@ const TaskDetailPage: React.FC = () => {
               label={`优先级：${priorityLabels[task.priority]}`}
               sx={{
                 backgroundColor: priorityColors[task.priority],
-                color: "#fff",
+                color: theme.palette.common.white,
               }}
             />
             {task.dueDate && (
@@ -270,7 +270,7 @@ const TaskDetailPage: React.FC = () => {
                 sx={{
                   width: "100%",
                   height: 4,
-                  backgroundColor: "#e0e0e0",
+                  backgroundColor: theme.palette.action.hover,
                   borderRadius: 2,
                   overflow: "hidden",
                 }}
@@ -279,7 +279,7 @@ const TaskDetailPage: React.FC = () => {
                   sx={{
                     width: `${completionRate}%`,
                     height: "100%",
-                    backgroundColor: "#4caf50",
+                    backgroundColor: theme.palette.success.main,
                     transition: "width 0.3s ease",
                   }}
                 />

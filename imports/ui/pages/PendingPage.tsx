@@ -39,20 +39,7 @@ interface Task {
   description?: string;
 }
 
-const categoryColors = {
-  未分类: "#9e9e9e",
-  人际: "#f44336",
-  心智: "#2196f3",
-  健康: "#4caf50",
-  工作: "#9c27b0",
-  兴趣: "#ff9800",
-};
-
-const priorityColors = {
-  low: "#4caf50",
-  medium: "#ff9800",
-  high: "#f44336",
-};
+// category/priority color maps derived from theme inside component
 
 const priorityLabels = {
   low: "低",
@@ -62,6 +49,20 @@ const priorityLabels = {
 
 const PendingPage: React.FC = () => {
   const theme = useTheme();
+  const categoryColors = {
+    未分类: theme.palette.grey[500],
+    人际: theme.palette.error.main,
+    心智: theme.palette.primary.main,
+    健康: theme.palette.success.main,
+    工作: theme.palette.secondary.main,
+    兴趣: theme.palette.warning.main,
+  } as Record<string, string>;
+
+  const priorityColors = {
+    low: theme.palette.success.main,
+    medium: theme.palette.warning.main,
+    high: theme.palette.error.main,
+  } as Record<string, string>;
   const [tasks, setTasks] = useState<Task[]>([
     {
       id: "1",
@@ -189,9 +190,9 @@ const PendingPage: React.FC = () => {
             <ListItem
               key={task.id}
               sx={{
-                cursor: "pointer",
-                "&:hover": { backgroundColor: "#f5f5f5" },
-              }}
+                  cursor: "pointer",
+                  "&:hover": { backgroundColor: theme.palette.action.hover },
+                }}
             >
               <ListItemIcon>
                 <Checkbox
@@ -230,11 +231,8 @@ const PendingPage: React.FC = () => {
                       label={task.category}
                       size="small"
                       sx={{
-                        backgroundColor:
-                          categoryColors[
-                            task.category as keyof typeof categoryColors
-                          ],
-                        color: "#fff",
+                        backgroundColor: categoryColors[task.category as keyof typeof categoryColors],
+                        color: theme.palette.common.white,
                         height: 20,
                         fontSize: "0.75rem",
                       }}
@@ -244,7 +242,7 @@ const PendingPage: React.FC = () => {
                       size="small"
                       sx={{
                         backgroundColor: priorityColors[task.priority],
-                        color: "#fff",
+                        color: theme.palette.common.white,
                         height: 20,
                         fontSize: "0.75rem",
                       }}
@@ -308,13 +306,13 @@ const PendingPage: React.FC = () => {
         color="primary"
         aria-label="add"
         onClick={handleAddTask}
-        sx={{
+            sx={{
           position: "fixed",
           bottom: 80,
           right: 16,
-          backgroundColor: "#f44336",
+          backgroundColor: theme.palette.error.main,
           "&:hover": {
-            backgroundColor: "#d32f2f",
+            backgroundColor: theme.palette.error.dark,
           },
         }}
       >

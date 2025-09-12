@@ -6,6 +6,7 @@ import {
   IconButton,
   Collapse,
   List,
+  useTheme,
 } from "@mui/material";
 import { ExpandMore, ExpandLess, Add } from "@mui/icons-material";
 import type { TimeBlock } from "../../models/timeblock";
@@ -28,6 +29,7 @@ const TimeBlockComp: React.FC<Props> = ({
   onCompleteTask,
 }) => {
   const [open, setOpen] = useState(true);
+  const theme = useTheme();
 
   const totalEstimated = tasks.reduce((s, t) => s + (t.estimatedTime || 0), 0);
 
@@ -50,7 +52,7 @@ const TimeBlockComp: React.FC<Props> = ({
           </Typography>
         </Box>
         <Box>
-          <IconButton size="small" onClick={() => onAddTask(block._id!)} sx={{ color: '#137DC5' }}>
+          <IconButton size="small" onClick={() => onAddTask(block._id!)} sx={{ color: theme.palette.primary.main }}>
             <Add fontSize="small" />
           </IconButton>
           <IconButton size="small" onClick={() => setOpen((v) => !v)}>
