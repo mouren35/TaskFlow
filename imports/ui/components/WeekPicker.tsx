@@ -1,5 +1,6 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
+import colors from "../theme/colors";
 
 export function getStartOfWeek(date: Date) {
   const d = new Date(date);
@@ -106,7 +107,7 @@ const WeekPicker: React.FC<Props> = ({ selectedDate, onSelectDate }) => {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                bgcolor: isSelected ? "#2B67A3" : "transparent",
+                bgcolor: isSelected ? colors.trueBlue : "transparent",
                 color: isSelected ? "#fff" : "text.primary",
                 border: isSelected ? "none" : "1px solid transparent",
                 boxShadow: isSelected
@@ -134,7 +135,7 @@ const WeekPicker: React.FC<Props> = ({ selectedDate, onSelectDate }) => {
                     width: { xs: 5, sm: 6 },
                     height: { xs: 5, sm: 6 },
                     borderRadius: "50%",
-                    bgcolor: "#2B67A3",
+                    bgcolor: colors.trueBlue,
                   }}
                 />
               ) : null}

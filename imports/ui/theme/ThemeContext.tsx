@@ -5,6 +5,7 @@ import {
   Theme,
 } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
+import colors from "./colors";
 
 // 定义主题类型
 type ThemeMode = "light" | "dark" | "system";
@@ -33,29 +34,36 @@ interface ThemeProviderProps {
 const designTokens = (mode: "light" | "dark") => {
   const isLight = mode === "light";
 
-  // 深色系：使用 Material 深色色阶以确保可读性与对比
-  const deepBlue = "#0D47A1"; // Blue 900
-  const deepRed = "#B71C1C"; // Red 900
-  const deepGreen = "#1B5E20"; // Green 900
-
-  // 轻微的表面色调用于 Material You 风格的层次感
-  const lightBg = "#FFFFFF"; // 白色背景
-  const surface = "#FFFFFF"; // 卡片表面（Light）
-  const surfacedSoft = "rgba(13,71,161,0.04)"; // 带蓝色基调的轻表面
+  // 使用用户指定的调色板（Alpine Oat 背景 + 强调色/辅助色）
+  const {
+    alpineOat,
+    cherryRed,
+    butterYellow,
+    trueBlue,
+    midnightBlue,
+    dillGreen,
+    neutralText,
+    neutralSecondary,
+    neutralLight,
+  } = colors;
 
   const palette = {
     mode,
-    primary: { main: deepBlue, contrastText: "#fff" },
-    secondary: { main: deepRed, contrastText: "#fff" },
-    success: { main: deepGreen, contrastText: "#fff" },
+    // 主色调选择 Alpine Oat（以背景/卡片为主）
+    primary: { main: alpineOat, contrastText: neutralText },
+    // 强调色与辅助色
+    secondary: { main: cherryRed, contrastText: "#fff" },
+    info: { main: trueBlue, contrastText: "#fff" },
+    warning: { main: butterYellow, contrastText: neutralText },
+    success: { main: dillGreen, contrastText: "#fff" },
     background: {
-      default: isLight ? lightBg : "#061316",
-      paper: isLight ? surface : "#071018",
+      default: isLight ? alpineOat : "#061316",
+      paper: isLight ? alpineOat : "#071018",
     },
-    divider: isLight ? "rgba(7,20,39,0.08)" : "rgba(255,255,255,0.06)",
+    divider: isLight ? neutralLight : "rgba(255,255,255,0.06)",
     text: {
-      primary: isLight ? "#071427" : "#F8FAFC",
-      secondary: isLight ? "#42526E" : "#9CA3AF",
+      primary: isLight ? neutralText : "#F8FAFC",
+      secondary: isLight ? neutralSecondary : "#9CA3AF",
     },
   } as const;
 
@@ -123,22 +131,22 @@ const designTokens = (mode: "light" | "dark") => {
             padding: "8px 14px",
           },
           containedPrimary: {
-            backgroundColor: deepBlue,
+            backgroundColor: trueBlue,
             color: "#fff",
-            boxShadow: "0 12px 36px rgba(13,71,161,0.12)",
+            boxShadow: "0 12px 36px rgba(19,125,197,0.12)",
           },
           containedSecondary: {
-            backgroundColor: deepRed,
+            backgroundColor: cherryRed,
             color: "#fff",
-            boxShadow: "0 12px 36px rgba(183,28,28,0.12)",
+            boxShadow: "0 12px 36px rgba(211,47,47,0.12)",
           },
         },
       },
       MuiFab: {
         styleOverrides: {
           root: {
-            boxShadow: "0 18px 48px rgba(13,71,161,0.16)",
-            backgroundColor: deepBlue,
+            boxShadow: "0 18px 48px rgba(19,125,197,0.16)",
+            backgroundColor: trueBlue,
             color: "#fff",
           },
         },
