@@ -1,15 +1,16 @@
 import React from "react";
 import { useSwipeable } from "react-swipeable";
 import { Paper, Stack, Box, Typography, Tooltip, Chip } from "@mui/material";
+import colors from "../theme/colors";
 import type { Task } from "../../models/task";
 
 const categoryColors: Record<string, string> = {
-  social: "#f44336",
-  mind: "#2196f3",
-  health: "#4caf50",
-  work: "#9c27b0",
-  hobby: "#ff9800",
-  uncategorized: "#9e9e9e",
+  social: colors.cherryRed,
+  mind: colors.trueBlue,
+  health: colors.dillGreen,
+  work: colors.midnightBlue,
+  hobby: colors.butterYellow,
+  uncategorized: colors.textSecondary,
 };
 
 type Props = {
@@ -45,12 +46,13 @@ const TaskCard = React.forwardRef<HTMLDivElement, Props>(
         {...swipeHandlers}
         elevation={1}
         sx={{
-          p: 2,
-          borderRadius: 2,
-          transition: "all 0.2s",
-          borderLeft: `4px solid ${task.category ? (categoryColors as any)[task.category] : "#9e9e9e"}`,
-          "&:active": { transform: "scale(0.99)" },
-        }}
+            p: 2,
+            borderRadius: 3,
+            transition: "all 0.12s",
+            borderLeft: `6px solid ${task.category ? (categoryColors as any)[task.category] : colors.textSecondary}`,
+            backgroundColor: colors.alpineOat,
+            boxShadow: "0 6px 18px rgba(17,45,78,0.04)",
+          }}
         ref={setRefs}
       >
         <Stack
@@ -89,7 +91,17 @@ const TaskCard = React.forwardRef<HTMLDivElement, Props>(
                   : "未完成"
             }
             size="small"
-            sx={{ fontWeight: 500 }}
+            sx={{
+              fontWeight: 600,
+              backgroundColor:
+                task.status === "completed"
+                  ? colors.cherryRed
+                  : task.status === "inProgress"
+                    ? colors.trueBlue
+                    : "transparent",
+              color: task.status === "completed" || task.status === "inProgress" ? "#fff" : colors.midnightBlue,
+              border: task.status === "pending" ? `1px solid ${colors.borderLight}` : "none",
+            }}
           />
         </Stack>
       </Paper>

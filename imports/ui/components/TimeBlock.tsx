@@ -32,7 +32,7 @@ const TimeBlockComp: React.FC<Props> = ({
   const totalEstimated = tasks.reduce((s, t) => s + (t.estimatedTime || 0), 0);
 
   return (
-    <Paper sx={{ p: 1, mb: 1, borderRadius: 1 }} elevation={0}>
+  <Paper sx={{ p: 1, mb: 1, borderRadius: 2, backgroundColor: 'transparent' }} elevation={0}>
       <Box
         sx={{
           display: "flex",
@@ -41,7 +41,7 @@ const TimeBlockComp: React.FC<Props> = ({
         }}
       >
         <Box>
-          <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+          <Typography variant="subtitle2" sx={{ fontWeight: 700, color: 'text.primary' }}>
             {block.title} · {totalEstimated} 分钟
           </Typography>
           <Typography variant="caption" color="text.secondary">
@@ -50,7 +50,7 @@ const TimeBlockComp: React.FC<Props> = ({
           </Typography>
         </Box>
         <Box>
-          <IconButton size="small" onClick={() => onAddTask(block._id!)}>
+          <IconButton size="small" onClick={() => onAddTask(block._id!)} sx={{ color: '#137DC5' }}>
             <Add fontSize="small" />
           </IconButton>
           <IconButton size="small" onClick={() => setOpen((v) => !v)}>

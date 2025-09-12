@@ -4,6 +4,7 @@
 import React from "react";
 import { useLocation, useHistory } from "react-router-dom";
 import { BottomNavigation, BottomNavigationAction, Paper } from "@mui/material";
+import colors from "../theme/colors";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
 import EmojiObjectsOutlinedIcon from "@mui/icons-material/EmojiObjectsOutlined";
@@ -27,26 +28,28 @@ const BottomNav: React.FC = () => {
       elevation={3}
       sx={{
         position: "fixed",
-        bottom: 0,
-        left: 0,
-        right: 0,
+        bottom: 12,
+        left: 12,
+        right: 12,
         zIndex: 100,
-        borderTop: "1px solid #eee",
-        background: "#fff",
+        borderRadius: 28,
+        borderTop: "none",
+        background: colors.alpineOat,
         paddingBottom: "env(safe-area-inset-bottom)",
+        boxShadow: "0 10px 30px rgba(17,45,78,0.06)",
       }}
-      square
+      square={false}
     >
       <BottomNavigation
         value={current}
         onChange={(_, value) => history.push(value)}
         showLabels
-        sx={{
-          width: "100%",
-          margin: 0,
-          display: "flex",
-          position: "relative",
-        }}
+          sx={{
+            width: "100%",
+            margin: 0,
+            display: "flex",
+            position: "relative",
+          }}
       >
         {navs.map((nav) => (
           <BottomNavigationAction
@@ -59,6 +62,7 @@ const BottomNav: React.FC = () => {
               minWidth: 0,
               maxWidth: "none",
               justifyContent: "center",
+              color: colors.midnightBlue,
             }}
           />
         ))}
