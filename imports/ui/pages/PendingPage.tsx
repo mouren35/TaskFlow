@@ -174,7 +174,7 @@ const PendingPage: React.FC = () => {
   return (
     <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
       {/* 标题栏 */}
-      <Box sx={{ p: 2, borderBottom: "1px solid #eee" }}>
+  <Box sx={{ p: 2, borderBottom: `1px solid ${theme.palette.divider}` }}>
         <Typography variant="h5" fontWeight="bold">
           待办任务
         </Typography>

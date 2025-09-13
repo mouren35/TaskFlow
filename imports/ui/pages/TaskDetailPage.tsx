@@ -290,12 +290,12 @@ const TaskDetailPage: React.FC = () => {
           <List>
             {task.subtasks.map((subtask) => (
               <ListItem
-                key={subtask.id}
-                sx={{
-                  cursor: "pointer",
-                  "&:hover": { backgroundColor: "#f5f5f5" },
-                }}
-              >
+                  key={subtask.id}
+                  sx={{
+                    cursor: "pointer",
+                    "&:hover": { backgroundColor: theme.palette.action.hover },
+                  }}
+                >
                 <ListItemIcon>
                   <Checkbox
                     edge="start"

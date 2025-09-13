@@ -18,14 +18,14 @@ const ErrorPage: React.FC = () => {
     >
       <Paper
         elevation={0}
-        sx={{
+        sx={(theme) => ({
           p: 4,
           textAlign: "center",
           maxWidth: 400,
-          background: "#fff",
-          border: "1px solid #eee",
+          background: theme.palette.background.paper,
+          border: `1px solid ${theme.palette.divider}`,
           borderRadius: 2,
-        }}
+        })}
       >
         <ErrorOutline sx={{ fontSize: 64, color: "error.main", mb: 2 }} />
         <Typography variant="h5" gutterBottom>

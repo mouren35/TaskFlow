@@ -15,6 +15,7 @@ import {
   Slide,
   Checkbox,
   FormControlLabel,
+  useTheme,
 } from "@mui/material";
 import { TransitionProps } from "@mui/material/transitions";
 import { Task } from "../../models/task";
@@ -80,7 +81,15 @@ const AddTaskDialog: React.FC<AddTaskDialogProps> = ({
   const [repeatRule, setRepeatRule] = useState<string>("");
   const [timesPerDay, setTimesPerDay] = useState<number>(1);
   const [applyToFuture, setApplyToFuture] = useState<boolean>(false);
-  const theme = (undefined as any) as any; // placeholder for typing below
+  const theme = useTheme();
+  const categoryColorMap: Record<string, string> = {
+    social: theme.palette.error.main,
+    mind: theme.palette.primary.main,
+    health: theme.palette.success.main,
+    work: theme.palette.secondary.main,
+    hobby: theme.palette.warning.main,
+    uncategorized: theme.palette.grey[500],
+  };
 
   // 当对话框打开或初始任务变化时，重置表单
   useEffect(() => {
@@ -188,25 +197,7 @@ const AddTaskDialog: React.FC<AddTaskDialogProps> = ({
                       width: 12,
                       height: 12,
                       borderRadius: "50%",
-                      bgcolor: (() => {
-                        // read theme dynamically
-                        try {
-                          // eslint-disable-next-line react-hooks/rules-of-hooks
-                          const { useTheme } = require('@mui/material');
-                          const t = useTheme();
-                          const map: Record<string, string> = {
-                            social: t.palette.error.main,
-                            mind: t.palette.primary.main,
-                            health: t.palette.success.main,
-                            work: t.palette.secondary.main,
-                            hobby: t.palette.warning.main,
-                            uncategorized: t.palette.grey[500],
-                          };
-                          return map[value] || t.palette.grey[500];
-                        } catch (e) {
-                          return '#9e9e9e';
-                        }
-                      })(),
+                      bgcolor: categoryColorMap[value] || theme.palette.grey[500],
                       mr: 1,
                     }}
                   />
