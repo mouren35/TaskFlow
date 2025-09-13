@@ -14,7 +14,6 @@ import {
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import CheckIcon from "@mui/icons-material/Check";
 import InfoIcon from "@mui/icons-material/Info";
-import colors from "../theme/colors";
 import type { Task } from "../../models/task";
 
 const categoryColors = (theme: any): Record<string, string> => ({
@@ -46,7 +45,7 @@ const TaskCard = React.forwardRef<HTMLDivElement, Props>(({ task, onStart, onCom
       sx={{
         borderRadius: 3,
         transition: "transform 0.12s",
-        borderLeft: `6px solid ${task.category ? (categoryColors as any)[task.category] : colors.textSecondary}`,
+        borderLeft: `6px solid ${task.category ? categoryColors(theme)[task.category as string] : theme.palette.text.secondary}`,
         backgroundColor: "background.paper",
       }}
     >

@@ -3,8 +3,7 @@
 
 import React from "react";
 import { useLocation, useHistory } from "react-router-dom";
-import { BottomNavigation, BottomNavigationAction, Paper } from "@mui/material";
-import colors from "../theme/colors";
+import { BottomNavigation, BottomNavigationAction, Paper, useTheme } from "@mui/material";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
 import EmojiObjectsOutlinedIcon from "@mui/icons-material/EmojiObjectsOutlined";
@@ -23,6 +22,8 @@ const BottomNav: React.FC = () => {
   const current =
     navs.find((n) => location.pathname.startsWith(n.value))?.value || "/plan";
 
+  const theme = useTheme();
+
   return (
     <Paper
       elevation={3}
@@ -34,7 +35,7 @@ const BottomNav: React.FC = () => {
         zIndex: 100,
         borderRadius: 28,
         borderTop: "none",
-        background: colors.alpineOat,
+        background: theme.palette.background.default,
         paddingBottom: "env(safe-area-inset-bottom)",
         boxShadow: "0 10px 30px rgba(17,45,78,0.06)",
       }}
@@ -57,12 +58,12 @@ const BottomNav: React.FC = () => {
             label={nav.label}
             value={nav.value}
             icon={nav.icon}
-            sx={{
+              sx={{
               flex: 1,
               minWidth: 0,
               maxWidth: "none",
               justifyContent: "center",
-              color: colors.midnightBlue,
+              color: theme.palette.text.primary,
             }}
           />
         ))}
