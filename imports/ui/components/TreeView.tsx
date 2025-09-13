@@ -20,6 +20,7 @@ import {
   Edit,
   Delete,
 } from "@mui/icons-material";
+import TransitionRefWrapper from "./TransitionRefWrapper";
 
 export interface TreeNode {
   id: string;
@@ -46,20 +47,16 @@ const TreeView: React.FC<TreeViewProps> = ({
   onSelectNode,
 }) => {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const theme = useTheme();
 
   const toggleExpand = (nodeId: string) => {
-    setExpanded((prev) => ({
-      ...prev,
-      [nodeId]: !prev[nodeId],
-    }));
+    setExpanded((prev) => ({ ...prev, [nodeId]: !prev[nodeId] }));
   };
-
-  const theme = useTheme();
 
   const renderTreeNodes = (nodes: TreeNode[] = [], level = 0) => {
     return (nodes || []).map((node) => {
-      const isExpanded = expanded[node.id] || false;
-      const hasChildren = node.children && node.children.length > 0;
+      const isExpanded = !!expanded[node.id];
+      const hasChildren = Array.isArray(node.children) && node.children.length > 0;
 
       return (
         <React.Fragment key={node.id}>
@@ -67,24 +64,13 @@ const TreeView: React.FC<TreeViewProps> = ({
             sx={{
               pl: level * 2 + 1,
               py: 0.5,
-              "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" },
+              "&:hover": { backgroundColor: "rgba(0,0,0,0.04)" },
               "&:hover .node-actions": { opacity: 1 },
             }}
           >
             {node.type === "folder" && (
-              <ListItemIcon
-                sx={{ minWidth: 36 }}
-                onClick={() => toggleExpand(node.id)}
-              >
-                {hasChildren ? (
-                  isExpanded ? (
-                    <ExpandMore fontSize="small" />
-                  ) : (
-                    <ChevronRight fontSize="small" />
-                  )
-                ) : (
-                  <Box sx={{ width: 24 }} />
-                )}
+              <ListItemIcon sx={{ minWidth: 36 }} onClick={() => toggleExpand(node.id)}>
+                {hasChildren ? (isExpanded ? <ExpandMore fontSize="small" /> : <ChevronRight fontSize="small" />) : <Box sx={{ width: 24 }} />}
               </ListItemIcon>
             )}
 
@@ -100,12 +86,7 @@ const TreeView: React.FC<TreeViewProps> = ({
               primary={
                 <Typography
                   variant="body2"
-                  sx={{
-                    fontWeight: node.type === "folder" ? "medium" : "normal",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                  }}
+                  sx={{ fontWeight: node.type === "folder" ? 600 : 400, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
                   onClick={() => onSelectNode(node)}
                 >
                   {node.title}
@@ -113,35 +94,16 @@ const TreeView: React.FC<TreeViewProps> = ({
               }
             />
 
-            <Box
-              className="node-actions"
-              sx={{
-                display: "flex",
-                opacity: 0,
-                transition: "opacity 0.2s",
-              }}
-            >
+            <Box className="node-actions" sx={{ display: "flex", opacity: 0, transition: "opacity 0.2s" }}>
               {node.type === "folder" && (
-                <IconButton
-                  size="small"
-                  onClick={() => onAddNode(node.id)}
-                  sx={{ p: 0.5 }}
-                >
+                <IconButton size="small" onClick={() => onAddNode(node.id)} sx={{ p: 0.5 }}>
                   <Add fontSize="small" />
                 </IconButton>
               )}
-              <IconButton
-                size="small"
-                onClick={() => onEditNode(node)}
-                sx={{ p: 0.5 }}
-              >
+              <IconButton size="small" onClick={() => onEditNode(node)} sx={{ p: 0.5 }}>
                 <Edit fontSize="small" />
               </IconButton>
-              <IconButton
-                size="small"
-                onClick={() => onDeleteNode(node.id)}
-                sx={{ p: 0.5 }}
-              >
+              <IconButton size="small" onClick={() => onDeleteNode(node.id)} sx={{ p: 0.5 }}>
                 <Delete fontSize="small" />
               </IconButton>
             </Box>
@@ -149,9 +111,11 @@ const TreeView: React.FC<TreeViewProps> = ({
 
           {node.type === "folder" && hasChildren && (
             <Collapse in={isExpanded} timeout="auto" unmountOnExit>
-              <List component="div" disablePadding>
-                {renderTreeNodes(node.children ?? [], level + 1)}
-              </List>
+              <TransitionRefWrapper>
+                <List component="div" disablePadding>
+                  {renderTreeNodes(node.children ?? [], level + 1)}
+                </List>
+              </TransitionRefWrapper>
             </Collapse>
           )}
         </React.Fragment>
@@ -160,24 +124,9 @@ const TreeView: React.FC<TreeViewProps> = ({
   };
 
   return (
-    <Paper
-      elevation={0}
-      sx={{
-        border: `1px solid ${theme.palette.divider}`,
-        borderRadius: 1,
-        height: "100%",
-        overflow: "auto",
-      }}
-    >
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          p: 1,
-          borderBottom: `1px solid ${theme.palette.divider}`,
-        }}
-      >
-        <Typography variant="subtitle2" fontWeight="medium">
+    <Paper elevation={0} sx={{ border: `1px solid ${theme.palette.divider}`, borderRadius: 1, height: "100%", overflow: "auto" }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", p: 1, borderBottom: `1px solid ${theme.palette.divider}` }}>
+        <Typography variant="subtitle2" fontWeight={600}>
           思考结构
         </Typography>
         <IconButton size="small" onClick={() => onAddNode(null)}>

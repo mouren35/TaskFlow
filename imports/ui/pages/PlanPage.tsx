@@ -35,11 +35,22 @@ import {
   Fab,
 } from "@mui/material";
 
+// Swipeable list for gesture actions
+import {
+  SwipeableList,
+  SwipeableListItem,
+  LeadingActions,
+  TrailingActions,
+  SwipeAction,
+} from "react-swipeable-list";
+import "react-swipeable-list/dist/styles.css";
+
 import WeekPicker from "../components/WeekPicker";
 import TaskCard from "../components/TaskCard";
 import TimeBlockComp from "../components/TimeBlock";
 import AddTaskDialog from "../components/AddTaskDialog";
 import NewTimeBlockDialog from "../components/NewTimeBlockDialog";
+import TransitionRefWrapper from "../components/TransitionRefWrapper";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -276,30 +287,28 @@ const PlanPage: React.FC = () => {
               <List sx={{ p: 0 }}>
                 {timeBlocks.length > 0 ? (
                   timeBlocks.map((tb, index) => (
-                    <Zoom
-                      in
-                      key={tb._id}
-                      style={{ transitionDelay: `${index * 30}ms` }}
-                    >
-                      <ListItem divider disableGutters sx={{ p: 0.5, mb: 0.5 }}>
-                        <TimeBlockComp
-                          block={tb}
-                          tasks={tasks.filter((t) => t.blockId === tb._id)}
-                          onAddTask={(bid?: string) =>
-                            handleOpenAddTaskDialog(bid)
-                          }
-                          onStartTask={(id: string) => {
-                            startTask(id);
-                            setCurrentTimerTaskId(id);
-                            setElapsedSeconds(0);
-                          }}
-                          onCompleteTask={(id: string, minutes?: number) => {
-                            completeTask(id, minutes || 0);
-                            if (currentTimerTaskId === id)
-                              setCurrentTimerTaskId(null);
-                          }}
-                        />
-                      </ListItem>
+                    <Zoom in key={tb._id} style={{ transitionDelay: `${index * 30}ms` }}>
+                      <TransitionRefWrapper>
+                        <ListItem divider disableGutters sx={{ p: 0.5, mb: 0.5 }}>
+                          <TimeBlockComp
+                            block={tb}
+                            tasks={tasks.filter((t) => t.blockId === tb._id)}
+                            onAddTask={(bid?: string) =>
+                              handleOpenAddTaskDialog(bid)
+                            }
+                            onStartTask={(id: string) => {
+                              startTask(id);
+                              setCurrentTimerTaskId(id);
+                              setElapsedSeconds(0);
+                            }}
+                            onCompleteTask={(id: string, minutes?: number) => {
+                              completeTask(id, minutes || 0);
+                              if (currentTimerTaskId === id)
+                                setCurrentTimerTaskId(null);
+                            }}
+                          />
+                        </ListItem>
+                      </TransitionRefWrapper>
                     </Zoom>
                   ))
                 ) : (
@@ -318,37 +327,74 @@ const PlanPage: React.FC = () => {
               任务（左滑开始，右滑完成）
             </Typography>
 
-            <Box
-              sx={{
-                display: "grid",
-                gap: 2,
-                gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)" },
-              }}
-            >
+            <Box>
               {tasks.length > 0 ? (
-                tasks.map((t, index) => (
-                  <Zoom
-                    in
-                    key={t._id}
-                    style={{ transitionDelay: `${index * 50}ms` }}
-                  >
-                    <TaskCard
-                      task={t}
-                      onStart={(id: string) => {
-                        startTask(id);
-                        setCurrentTimerTaskId(id);
-                        setElapsedSeconds(0);
-                      }}
-                      onComplete={(id: string, mins?: number) => {
-                        completeTask(id, mins || 0);
-                        if (currentTimerTaskId === id)
-                          setCurrentTimerTaskId(null);
-                      }}
-                    />
-                  </Zoom>
-                ))
+                <SwipeableList>
+                  {tasks
+                    .filter((t) => Boolean(t._id))
+                    .map((t, index) => {
+                    const id = t._id as string;
+                    const leading = (
+                        <LeadingActions>
+                        <SwipeAction
+                          onClick={() => {
+                            // Right swipe -> 完成
+                            completeTask(id, 0);
+                            if (currentTimerTaskId === id)
+                              setCurrentTimerTaskId(null);
+                          }}
+                        >
+                          完成
+                        </SwipeAction>
+                      </LeadingActions>
+                    );
+
+                    const trailing = (
+                        <TrailingActions>
+                        <SwipeAction
+                          onClick={() => {
+                            // Left swipe -> 开始
+                            startTask(id);
+                            setCurrentTimerTaskId(id);
+                            setElapsedSeconds(0);
+                          }}
+                        >
+                          开始
+                        </SwipeAction>
+                      </TrailingActions>
+                    );
+
+                    return (
+                      <SwipeableListItem
+                        key={id}
+                        leadingActions={leading}
+                        trailingActions={trailing}
+                      >
+                        <Zoom in style={{ transitionDelay: `${index * 50}ms` }}>
+                          <TransitionRefWrapper>
+                            <Box sx={{ mb: 1 }}>
+                              <TaskCard
+                                task={t}
+                                onStart={(taskId: string) => {
+                                  startTask(taskId);
+                                  setCurrentTimerTaskId(taskId);
+                                  setElapsedSeconds(0);
+                                }}
+                                onComplete={(taskId: string, mins?: number) => {
+                                  completeTask(taskId, mins || 0);
+                                  if (currentTimerTaskId === taskId)
+                                    setCurrentTimerTaskId(null);
+                                }}
+                              />
+                            </Box>
+                          </TransitionRefWrapper>
+                        </Zoom>
+                      </SwipeableListItem>
+                    );
+                  })}
+                </SwipeableList>
               ) : (
-                <Box sx={{ p: 4, textAlign: "center", gridColumn: "1 / -1" }}>
+                <Box sx={{ p: 4, textAlign: "center" }}>
                   <Typography color="text.secondary">
                     暂无任务，点击"添加任务"按钮创建新任务
                   </Typography>

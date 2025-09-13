@@ -6,18 +6,18 @@ import { UserStatsCollection } from '/imports/models/stats';
 import { ThoughtsCollection } from '/imports/api/tasks/thoughts';
 import { format } from 'date-fns';
 
-// 初始化示例数据
-async function initializeData() {
+// 初始化示例数据 (使用同步 collection API to avoid relying on non-standard async helpers)
+function initializeData() {
   // 检查是否已有数据
-  if (await TimeBlocksCollection.find().countAsync() === 0) {
+  if (TimeBlocksCollection.find().count() === 0) {
     console.log('初始化示例数据...');
-    
+
     // 创建今天的日期
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     // 创建几个时间块
-    const morningBlockId = await TimeBlocksCollection.insertAsync({
+    const morningBlockId = TimeBlocksCollection.insert({
       title: '上午工作',
       date: today,
       startTime: '09:00',
@@ -25,8 +25,8 @@ async function initializeData() {
       createdAt: new Date(),
       updatedAt: new Date(),
     });
-    
-    const afternoonBlockId = await TimeBlocksCollection.insertAsync({
+
+    const afternoonBlockId = TimeBlocksCollection.insert({
       title: '下午工作',
       date: today,
       startTime: '14:00',
@@ -34,8 +34,8 @@ async function initializeData() {
       createdAt: new Date(),
       updatedAt: new Date(),
     });
-    
-    const eveningBlockId = await TimeBlocksCollection.insertAsync({
+
+    const eveningBlockId = TimeBlocksCollection.insert({
       title: '晚间学习',
       date: today,
       startTime: '19:30',
@@ -43,9 +43,9 @@ async function initializeData() {
       createdAt: new Date(),
       updatedAt: new Date(),
     });
-    
+
     // 创建一些任务
-    await TasksCollection.insertAsync({
+    TasksCollection.insert({
       blockId: morningBlockId,
       title: '回复邮件',
       category: 'work',
@@ -53,8 +53,8 @@ async function initializeData() {
       status: 'pending',
       createdAt: new Date(),
     });
-    
-    await TasksCollection.insertAsync({
+
+    TasksCollection.insert({
       blockId: morningBlockId,
       title: '项目会议',
       category: 'work',
@@ -62,8 +62,8 @@ async function initializeData() {
       status: 'pending',
       createdAt: new Date(),
     });
-    
-    await TasksCollection.insertAsync({
+
+    TasksCollection.insert({
       blockId: afternoonBlockId,
       title: '编写代码',
       category: 'work',
@@ -71,8 +71,8 @@ async function initializeData() {
       status: 'pending',
       createdAt: new Date(),
     });
-    
-    await TasksCollection.insertAsync({
+
+    TasksCollection.insert({
       blockId: eveningBlockId,
       title: '阅读技术书籍',
       category: 'mind',
@@ -80,9 +80,9 @@ async function initializeData() {
       status: 'pending',
       createdAt: new Date(),
     });
-    
+
     // 创建一个习惯
-    const workoutTaskId = await TasksCollection.insertAsync({
+    const workoutTaskId = TasksCollection.insert({
       blockId: eveningBlockId,
       title: '锻炼身体',
       category: 'health',
@@ -90,13 +90,13 @@ async function initializeData() {
       repeat: {
         type: 'daily',
         rule: null,
-        count: 1
+        count: 1,
       },
       status: 'pending',
       createdAt: new Date(),
     });
-    
-    await HabitsCollection.insertAsync({
+
+    HabitsCollection.insert({
       taskId: workoutTaskId,
       title: '锻炼身体',
       category: 'health',
@@ -104,15 +104,15 @@ async function initializeData() {
       repeat: {
         type: 'daily',
         rule: null,
-        count: 1
+        count: 1,
       },
       streak: 0,
       totalCompleted: 0,
       createdAt: new Date(),
     });
-    
+
     // 创建一些思考节点
-    const projectThoughtId = await ThoughtsCollection.insertAsync({
+    const projectThoughtId = ThoughtsCollection.insert({
       title: '项目规划',
       category: 'work',
       estimatedTime: 0,
@@ -120,8 +120,8 @@ async function initializeData() {
       createdAt: new Date(),
       level: 0,
     });
-    
-    await ThoughtsCollection.insertAsync({
+
+    ThoughtsCollection.insert({
       parentId: projectThoughtId,
       title: '需求分析',
       category: 'work',
@@ -130,8 +130,8 @@ async function initializeData() {
       createdAt: new Date(),
       level: 1,
     });
-    
-    await ThoughtsCollection.insertAsync({
+
+    ThoughtsCollection.insert({
       parentId: projectThoughtId,
       title: '技术选型',
       category: 'work',
@@ -140,22 +140,27 @@ async function initializeData() {
       createdAt: new Date(),
       level: 1,
     });
-    
+
     // 初始化用户统计数据
-    await UserStatsCollection.insertAsync({
+    UserStatsCollection.insert({
       completedTasks: 0,
       totalTime: 0,
       joinDate: new Date(),
       updatedAt: new Date(),
     });
-    
+
     console.log('示例数据初始化完成');
   }
 }
 
-Meteor.startup(async () => {
+Meteor.startup(() => {
   // 初始化示例数据
-  await initializeData();
-  
-  console.log(`TaskFlow 服务器启动成功 - ${format(new Date(), 'yyyy-MM-dd HH:mm:ss')}`);
+  try {
+    initializeData();
+    console.log(`TaskFlow 服务器启动成功 - ${format(new Date(), 'yyyy-MM-dd HH:mm:ss')}`);
+  } catch (err) {
+    // 输出错误，以便调试启动时异常
+    // eslint-disable-next-line no-console
+    console.error('Error during server startup initialization:', err);
+  }
 });

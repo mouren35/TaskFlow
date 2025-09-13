@@ -8,6 +8,7 @@ import {
   List,
   useTheme,
 } from "@mui/material";
+import TransitionRefWrapper from './TransitionRefWrapper';
 import { ExpandMore, ExpandLess, Add } from "@mui/icons-material";
 import type { TimeBlock } from "../../models/timeblock";
 import type { Task } from "../../models/task";
@@ -66,17 +67,19 @@ const TimeBlockComp: React.FC<Props> = ({
       </Box>
 
       <Collapse in={open} timeout="auto" unmountOnExit>
-        <List sx={{ mt: 1 }}>
-          {tasks.map((t) => (
-            <Box key={t._id} sx={{ mb: 1 }}>
-              <TaskCard
-                task={t}
-                onStart={onStartTask}
-                onComplete={onCompleteTask}
-              />
-            </Box>
-          ))}
-        </List>
+        <TransitionRefWrapper>
+          <List sx={{ mt: 1 }}>
+            {tasks.map((t) => (
+              <Box key={t._id} sx={{ mb: 1 }}>
+                <TaskCard
+                  task={t}
+                  onStart={onStartTask}
+                  onComplete={onCompleteTask}
+                />
+              </Box>
+            ))}
+          </List>
+        </TransitionRefWrapper>
       </Collapse>
     </Paper>
   );
